@@ -46,10 +46,16 @@ jobs:
           if (-not (Test-Path install-portable/boostclient.exe)) { throw 'boostclient.exe missing from portable install' }
           Compress-Archive -Path install-portable/* -DestinationPath BoostClient-Windows-x64-Release.zip -CompressionLevel Optimal -Force
           Copy-Item install-portable/boostclient.exe BoostClient.exe -Force
+          Push-Location install-portable
+          & ../boostclient.exe --help
+          $smokeExit = $LASTEXITCODE
+          Pop-Location
+          if ($smokeExit -ne 0) { throw "BoostClient --help smoke test failed (exit $smokeExit)" }
           $hash = (Get-FileHash BoostClient-Windows-x64-Release.zip -Algorithm SHA256).Hash
           $exeHash = (Get-FileHash BoostClient.exe -Algorithm SHA256).Hash
           "Commit: $env:GITHUB_SHA" | Set-Content release-report.txt
           "Tests: $env:TEST_RESULT" | Add-Content release-report.txt
+          "Smoke test: passed (--help)" | Add-Content release-report.txt
           "ZIP SHA-256: $hash" | Add-Content release-report.txt
           "EXE SHA-256: $exeHash" | Add-Content release-report.txt
           "Release ZIP SHA-256: $hash" | Add-Content $env:GITHUB_STEP_SUMMARY

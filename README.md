@@ -74,7 +74,7 @@ cmake --install build --config Debug
 ctest --preset windows_msvc --config Debug
 ```
 
-For a cloud Windows x64 Release package, run the [BoostClient Windows x64 Release workflow](./.github/workflows/boostclient-windows.yml) from GitHub Actions. It builds on `windows-2022` with MSVC and uploads a portable package; run `boostclient.exe` from the extracted folder so its runtime files remain alongside it.
+For a cloud Windows x64 Release package, run the [BoostClient Windows x64 Release workflow](./.github/workflows/boostclient-windows.yml) from GitHub Actions. It builds on `windows-2022` with MSVC and uploads a portable package after a `--help` smoke test; run `boostclient.exe` from the extracted folder so its runtime files remain alongside it.
 
 For a portable install, use:
 
