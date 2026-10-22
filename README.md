@@ -74,6 +74,8 @@ cmake --install build --config Debug
 ctest --preset windows_msvc --config Debug
 ```
 
+For a cloud Windows x64 Release package, run the [BoostClient Windows x64 Release workflow](./.github/workflows/boostclient-windows.yml) from GitHub Actions. It builds on `windows-2022` with MSVC and uploads a portable package; run `boostclient.exe` from the extracted folder so its runtime files remain alongside it.
+
 For a portable install, use:
 
 ```powershell
@@ -113,7 +115,7 @@ CMake options.
   compatibility with old Minecraft versions.
 - A Windows Release executable was built and its `--help` smoke test succeeded on the original workstation before the cloud migration; that executable was not built in Colab.
 - The previous Windows Release test run passed 22 of 23 tests. `FileSystem` failed with exit code `0xc0000409`; tests have not yet been run in this cloud copy.
-- Colab is Linux and cannot produce a native Windows `.exe` with this project’s Windows/MSVC/Qt configuration. Use the Windows 2022 GitHub Actions runner after pushing this modified fork to an authorized repository.
+- No cloud Windows build has run yet. The [Windows x64 Release workflow](./.github/workflows/boostclient-windows.yml) is configured for GitHub Actions `windows-2022`/MSVC and records test results and SHA-256 checksums; the portable archive is the distributable because the executable needs adjacent runtime files.
 - The BoostClient theme and identity changes are a first rebrand pass; the
   inherited Qt layout has not been redesigned or visually validated yet.
 
