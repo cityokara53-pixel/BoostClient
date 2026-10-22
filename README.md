@@ -1,116 +1,132 @@
-<p align="center">
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/program_info/org.prismlauncher.PrismLauncher.logo-darkmode.svg">
-  <source media="(prefers-color-scheme: light)" srcset="/program_info/org.prismlauncher.PrismLauncher.logo.svg">
-  <img alt="Prism Launcher" src="/program_info/org.prismlauncher.PrismLauncher.logo.svg" width="40%">
-</picture>
-</p>
+# BoostClient
 
-<p align="center">
-  Prism Launcher is a custom launcher for Minecraft that allows you to easily manage multiple installations of Minecraft at once.<br />
-  <br />This is a <b>fork</b> of the MultiMC Launcher and is <b>not</b> endorsed by it.
-</p>
+BoostClient is a work-in-progress Minecraft launcher fork based on the official
+[Prism Launcher source](https://github.com/PrismLauncher/PrismLauncher). It has
+an original BoostClient icon and a dark teal-accented interface theme. It is an
+independent, modified project and is not affiliated with or endorsed by Prism
+Launcher.
 
-## Installation
+The upstream launcher architecture and capabilities are retained as the
+starting point, including separate instances, Minecraft version management,
+Java configuration, mod loaders, and modpack import. These capabilities have
+not yet been build- or runtime-verified in BoostClient.
 
-- All downloads and instructions for Prism Launcher can be found on our [Website](https://prismlauncher.org/download).
-- Last build status can be found in the [GitHub Actions](https://github.com/PrismLauncher/PrismLauncher/actions) tab (this also includes the pull requests status).
+## Get the source
 
-<p align="center">
-<a href="https://repology.org/project/prismlauncher/versions">
-    <img src="https://repology.org/badge/vertical-allrepos/prismlauncher.svg?columns=3" alt="Packaging status">
-</a>
-</p>
+This checkout preserves Prism Launcher's upstream Git history and remote. Fetch
+the pinned submodules before configuring a build:
 
-### Development Builds
+```powershell
+git submodule update --init --recursive
+```
 
-Please understand that these builds are not intended for most users. There may be bugs, and other instabilities. You have been warned.
+## Project layout
 
-There are development builds available through:
+- `launcher/` contains the Qt/C++ app, Minecraft/version and Java handling,
+  account/authentication code, mod-platform support, and UI.
+- `launcher/ui/` contains the Qt Widgets windows, dialogs, pages, and theme
+  system. `launcher/ui/themes/BoostTheme.*` adds the BoostClient palette and
+  styling without replacing launcher workflows.
+- `launcher/resources/` contains Qt resource collections, built-in icon
+  themes, and other embedded assets.
+- `launcher/translations/` contains translation loading/model code. This source
+  checkout does not include `.po`, `.qm`, or `.ts` catalogs; remote translation
+  URLs are disabled until BoostClient has its own translation service.
+- `program_info/` controls product metadata, app IDs, installer data, and
+  platform icons.
+- `tests/`, `CMakeLists.txt`, `CMakePresets.json`, and `cmake/vcpkg/` provide
+  test and build configuration.
 
-- [GitHub Actions](https://github.com/PrismLauncher/PrismLauncher/actions) (includes builds from pull requests opened by contributors)
-- [nightly.link](https://prismlauncher.org/nightly) (this will always point only to the latest version of develop)
+## Build on Windows
 
-These have debug information in the binaries, so their file sizes are relatively larger.
+Use the official
+[Prism Launcher Windows build guide](https://prismlauncher.org/wiki/development/build-instructions/)
+as the dependency reference. The current CMake preset requires CMake 3.28 or
+newer, Ninja Multi-Config, Visual Studio 2022 C++ tools, JDK 17, and Qt 6 with
+the Qt Image Formats, NetworkAuth, and SVG components. CMake's vcpkg preset
+fetches the remaining configured dependencies.
 
-Prebuilt Development builds are provided for **Linux**, **Windows** and **macOS**.
+Install Visual Studio Build Tools from an **elevated PowerShell**; its C++
+workload installation requires administrator access:
 
-On Linux, we also offer our own [Flatpak nightly repository](https://github.com/PrismLauncher/flatpak). Most software centers are able to install it by opening [this link](https://flatpak.prismlauncher.org/prismlauncher-nightly.flatpakref).
+```powershell
+winget install --source winget --exact --id Kitware.CMake --accept-source-agreements --accept-package-agreements
+winget install --source winget --exact --id Ninja-build.Ninja --accept-source-agreements --accept-package-agreements
+winget install --source winget --exact --id EclipseAdoptium.Temurin.17.JDK --accept-source-agreements --accept-package-agreements
+winget install --source winget --exact --id Microsoft.VisualStudio.2022.BuildTools --override '--wait --quiet --norestart --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended' --accept-source-agreements --accept-package-agreements
+```
 
-## Community & Support
+Install Qt 6.9.3 for the matching MSVC toolset and the required Qt add-on
+modules. The `aqt` command is available after opening a new terminal:
 
-Feel free to create a GitHub issue if you find a bug or want to suggest a new feature. We have multiple community spaces where other community members can help you:
+```powershell
+winget install --source winget --exact --id miurahr.aqtinstall
+aqt install-qt windows desktop 6.9.3 win64_msvc2022_64 -O C:\Qt -m qtimageformats qtnetworkauth
+```
 
-- **Our Discord server:**
+Open an **x64 Native Tools PowerShell** with the required tools available, then
+run these commands from the repository root:
 
-[![Prism Launcher Discord server](https://discordapp.com/api/guilds/1031648380885147709/widget.png?style=banner3)](https://prismlauncher.org/discord)
+```powershell
+cmake --preset windows_msvc -D CMAKE_PREFIX_PATH="C:\Qt\6.9.3\msvc2022_64"
+cmake --build --preset windows_msvc --config Debug
+cmake --install build --config Debug
+ctest --preset windows_msvc --config Debug
+```
 
-- **Our Matrix space:**
+For a portable install, use:
 
-[![Prism Launcher Space](https://img.shields.io/matrix/prismlauncher:matrix.org?style=for-the-badge&label=Matrix%20Space&logo=matrix&color=purple)](https://prismlauncher.org/matrix)
+```powershell
+cmake --install build --config Debug --component portable
+```
 
-- **Our Subreddit:**
+Do not reuse a build directory configured with Prism Launcher's previous
+identity or API settings; configure a fresh build directory after changing
+CMake options.
 
-[![r/PrismLauncher](https://img.shields.io/reddit/subreddit-subscribers/prismlauncher?style=for-the-badge&logo=reddit)](https://prismlauncher.org/reddit)
+## Branding touchpoints
 
-## Translations
+- Product, app ID, environment prefix, and display name: `program_info/CMakeLists.txt`
+- Executable and service defaults: top-level `CMakeLists.txt`
+- Window title and application identity: `launcher/Application.cpp` and `launcher/ui/MainWindow.cpp`
+- Installer and platform metadata: `program_info/win_install.nsi.in` and the
+  `program_info/org.boostclient.*` files
+- App icons: `program_info/org.boostclient.BoostClient.svg`,
+  `program_info/boostclient.ico`, `program_info/boostclient.icns`, and
+  `program_info/BoostClient.icon/`
+- Gaming theme and default theme selection:
+  `launcher/ui/themes/BoostTheme.*` and `launcher/ui/themes/ThemeManager.cpp`
 
-The translation effort for Prism Launcher is hosted on [Weblate](https://hosted.weblate.org/projects/prismlauncher/launcher/) and information about translating Prism Launcher is available at <https://github.com/PrismLauncher/Translations>.
+## Integrations and limitations
 
-## Building
+- Microsoft sign-in uses the upstream authentication implementation, but
+  `Launcher_MSA_CLIENT_ID` is intentionally empty. Register and authorize a
+  BoostClient application with Microsoft, then configure its client ID before
+  expecting sign-in to work.
+- The CurseForge key and Imgur client ID are also empty. Those integrations
+  require credentials that BoostClient is authorized to use.
+- Prism-specific news, updater, bug-tracker, community, and translation links
+  are disabled. The upstream metadata endpoint remains configured because the
+  launcher uses it to retrieve version and loader metadata; replace it with a
+  compatible service before operating an independent public service. The
+  legacy FML library download URL also still points to Prism's host for
+  compatibility with old Minecraft versions.
+- A Windows Release executable was built and its `--help` smoke test succeeded on the original workstation before the cloud migration; that executable was not built in Colab.
+- The previous Windows Release test run passed 22 of 23 tests. `FileSystem` failed with exit code `0xc0000409`; tests have not yet been run in this cloud copy.
+- Colab is Linux and cannot produce a native Windows `.exe` with this project’s Windows/MSVC/Qt configuration. Use the Windows 2022 GitHub Actions runner after pushing this modified fork to an authorized repository.
+- The BoostClient theme and identity changes are a first rebrand pass; the
+  inherited Qt layout has not been redesigned or visually validated yet.
 
-If you want to build Prism Launcher yourself, check the [build instructions](https://prismlauncher.org/wiki/development/build-instructions).
+## Licensing and attribution
 
-## Sponsors & Partners
+BoostClient is a modified fork, not a wholly original reimplementation. The
+launcher code is distributed under **GPL-3.0-only**; keep the upstream
+copyright notices, `LICENSE`, `COPYING.md`, and applicable third-party notices
+with source and binary distributions. Components may have their own licenses.
+See [`program_info/LICENSE`](program_info/LICENSE) for the upstream branding
+asset license. Original BoostClient branding assets are licensed under
+CC BY-SA 4.0; inherited Prism Launcher assets retain their upstream notices.
 
-We thank all the wonderful backers over at Open Collective! Support Prism Launcher by [becoming a backer](https://opencollective.com/prismlauncher).
-
-[![OpenCollective Backers](https://opencollective.com/prismlauncher/backers.svg?width=890&limit=1000)](https://opencollective.com/prismlauncher#backers)
-
-Thanks to JetBrains for providing us a few licenses for all their products, as part of their [Open Source program](https://www.jetbrains.com/opensource/).
-
-<a href="https://jb.gg/OpenSource">
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://www.jetbrains.com/company/brand/img/logo_jb_dos_4.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg">
-  <img alt="JetBrains logo" src="https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg" width="40%">
-</picture>
-</a>
-
-Thanks to Weblate for hosting our translation efforts.
-
-<a href="https://hosted.weblate.org/engage/prismlauncher/">
-<img src="https://hosted.weblate.org/widgets/prismlauncher/-/open-graph.png" alt="Translation status" width="300" />
-</a>
-
-Thanks to Netlify for providing us their excellent web services, as part of their [Open Source program](https://www.netlify.com/open-source/).
-
-<a href="https://www.netlify.com"> <img src="https://www.netlify.com/v3/img/components/netlify-color-accent.svg" alt="Deploys by Netlify" /> </a>
-
-Thanks to the awesome people over at [MacStadium](https://www.macstadium.com/), for providing M1-Macs for development purposes!
-
-<a href="https://www.macstadium.com"><img src="https://uploads-ssl.webflow.com/5ac3c046c82724970fc60918/5c019d917bba312af7553b49_MacStadium-developerlogo.png" alt="Powered by MacStadium" width="300"></a>
-
-## Forking/Redistributing/Custom builds policy
-
-You are free to fork, redistribute and provide custom builds as long as you follow the terms of the [license](LICENSE) (this is a legal responsibility), and if you made code changes rather than just packaging a custom build, please do the following as a basic courtesy:
-
-- Make it clear that your fork is not Prism Launcher and is not endorsed by or affiliated with the Prism Launcher project (<https://prismlauncher.org>).
-- Go through [CMakeLists.txt](CMakeLists.txt) and change Prism Launcher's API keys to your own or set them to empty strings (`""`) to disable them (this way the program will still compile but the functionality requiring those keys will be disabled).
-
-If you have any questions or want any clarification on the above conditions please make an issue and ask us.
-
-If you are just building Prism Launcher for your distribution, please make sure to set the `Launcher_BUILD_PLATFORM` to a slug representing your distribution. Examples are `archlinux`, `fedora` and `nixpkgs`.
-
-Note that if you build this software without removing the provided API keys in [CMakeLists.txt](CMakeLists.txt) you are accepting the following terms and conditions:
-
-- [Microsoft Identity Platform Terms of Use](https://docs.microsoft.com/en-us/legal/microsoft-identity-platform/terms-of-use)
-- [CurseForge 3rd Party API Terms and Conditions](https://support.curseforge.com/en/support/solutions/articles/9000207405-curse-forge-3rd-party-api-terms-and-conditions)
-
-If you do not agree with these terms and conditions, then remove the associated API keys from the [CMakeLists.txt](CMakeLists.txt) file by setting them to an empty string (`""`).
-
-## License [![https://github.com/PrismLauncher/PrismLauncher/blob/develop/LICENSE](https://img.shields.io/github/license/PrismLauncher/PrismLauncher?label=License&logo=gnu&color=C4282D)](LICENSE)
-
-All launcher code is available under the GPL-3.0-only license.
-
-The logo and related assets are under the CC BY-SA 4.0 license.
+When redistributing modified source or binaries, follow the GPL terms,
+including providing corresponding source and preserving required notices.
+Consult the included license texts for the complete requirements.

@@ -1,0 +1,10 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="boost" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#54f0c8"/>
+      <stop offset="1" stop-color="#62aaff"/>
+    </linearGradient>
+  </defs>
+  <path d="M604 168 302 554h190l-56 302 286-414H548l56-274Z" fill="url(#boost)"/>
+</svg>

@@ -853,6 +853,8 @@ SET(LAUNCHER_SOURCES
     # GUI - themes
     ui/themes/FusionTheme.cpp
     ui/themes/FusionTheme.h
+    ui/themes/BoostTheme.cpp
+    ui/themes/BoostTheme.h
     ui/themes/BrightTheme.cpp
     ui/themes/BrightTheme.h
     ui/themes/CustomTheme.cpp
