@@ -14,8 +14,8 @@ FileSystem test remains a known failure.
 
 ## Get the source
 
-This checkout preserves Prism Launcher's upstream Git history and remote. Fetch
-the pinned submodules before configuring a build:
+This project preserves Prism Launcher's upstream Git history. Fetch the pinned
+submodules before configuring a build:
 
 ```powershell
 git submodule update --init --recursive

@@ -9,7 +9,7 @@ if(UNIX)
 endif()
 
 set(Launcher_CommonName "BoostClient")
-set(Launcher_DisplayName "OG Client")
+set(Launcher_DisplayName "BoostClient")
 set(Launcher_AppID "org.boostclient.BoostClient")
 set(Launcher_Domain "")
 set(Launcher_Git "")

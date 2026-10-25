@@ -3003,7 +3003,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
     // start instance when double-clicked
     connect(view, &InstanceView::activated, this, &MainWindow::instanceActivated);
 
-    // VexLauncher: Connect Custom Offline Button
     connect(ui->actionLaunchOfflineCustom, &QAction::triggered, this, [this] {
         if (m_selectedInstance && !m_selectedInstance->isRunning()) {
             APPLICATION->launch(m_selectedInstance, LaunchMode::Offline);
@@ -4552,7 +4551,7 @@ void MainWindow::processURLs(QList<QUrl> urls)
                 } else {
                     CustomMessageBox::selectable(
                         this, tr("Error"),
-                        tr("Unsupported Modrinth link.\n\nOG Client currently only supports modpack links such as "
+                        tr("Unsupported Modrinth link.\n\nBoostClient currently only supports modpack links such as "
                            "modrinth://modpack/fabulously-optimized."),
                         QMessageBox::Critical)
                         ->show();
@@ -5314,7 +5313,7 @@ void MainWindow::instanceChanged(const QModelIndex& current, [[maybe_unused]] co
         ui->instanceToolBar->setEnabled(true);
         setInstanceActionsEnabled(true);
         ui->actionLaunchInstance->setEnabled(m_selectedInstance->canLaunch());
-        ui->actionLaunchOfflineCustom->setEnabled(m_selectedInstance->canLaunch()); // VexLauncher
+        ui->actionLaunchOfflineCustom->setEnabled(m_selectedInstance->canLaunch());
 
         ui->actionKillInstance->setEnabled(m_selectedInstance->isRunning());
         ui->actionExportInstance->setEnabled(m_selectedInstance->canExport());

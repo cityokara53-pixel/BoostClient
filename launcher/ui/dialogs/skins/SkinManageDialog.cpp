@@ -363,7 +363,7 @@ SkinManageDialog::SkinManageDialog(QWidget* parent, MinecraftAccountPtr acct)
     m_ui->mainHlLayout->setStretch(1, 3);
     resize(1280, 720);
     setWindowIcon(APPLICATION->logo());
-    setWindowTitle(tr("OG Client — Skin Studio"));
+    setWindowTitle(tr("BoostClient — Skin Studio"));
     setStyleSheet(QStringLiteral(
         "QDialog { background: #06101e; color: #e7f0ff; }"
         "QLabel { color: #dce9fb; }"
@@ -388,7 +388,7 @@ SkinManageDialog::SkinManageDialog(QWidget* parent, MinecraftAccountPtr acct)
     m_ui->brandNameLabel->setStyleSheet(QStringLiteral("font-size: 16px; font-weight: 700; color: #f0f6ff;"));
     m_ui->brandIconLabel->setPixmap(APPLICATION->logo().pixmap(28, 28));
     m_ui->brandIconLabel->setAlignment(Qt::AlignCenter);
-    m_ui->brandFooterLabel->setText(tr("OG Client\nMinecraft Java"));
+    m_ui->brandFooterLabel->setText(tr("BoostClient\nMinecraft Java"));
     m_ui->brandFooterLabel->setStyleSheet(QStringLiteral("font-size: 10px; color: #91a9c8; padding: 8px;"));
     m_ui->titleLabel->setStyleSheet(QStringLiteral("font-size: 25px; font-weight: 700; color: #f0f6ff;"));
     m_ui->titleLabel->setText(tr("Skin <span style=\"color:#11c8e8\">Studio</span>"));

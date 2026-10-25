@@ -42,8 +42,8 @@ ThemeColors colorsFor(const QString& id)
         return { "#EEF3FA", "#E3EAF4", "#FFFFFF", "#F7FAFF", "#CAD5E4", "#1769E0", "#4E74E8", "#7556CF",
                  "#BD4AAE", "#17243A", "#5D6C82", "#DDEBFF", "#FFFFFF", "#DCE7F7", "#155CC2" };
     }
-    return { "#0A0A0A", "#070707", "#141414", "#1D1D1D", "#303030", "#F28A1D", "#E87513", "#FFB347",
-             "#F26B38", "#F5F5F5", "#A8A8A8", "#242424", "#101010", "#292929", "#FF9C3D" };
+    return { "#101521", "#131A27", "#171E2B", "#202B3C", "#344258", "#47D7B8", "#77B8FF", "#7667FF",
+             "#B47CFF", "#F1F7FF", "#8493A6", "#173A37", "#0B1820", "#163D3A", "#77B8FF" };
 }
 
 QString themeName(const QString& id)
@@ -56,7 +56,7 @@ QString themeName(const QString& id)
         return QObject::tr("Emerald Reactor");
     if (id == "arctic-light")
         return QObject::tr("Arctic Light");
-    return QObject::tr("OG Client");
+    return QObject::tr("BoostClient");
 }
 }  // namespace
 
@@ -82,7 +82,7 @@ QString BoostTheme::tooltip()
         return QObject::tr("A dark crimson interface with warm, restrained highlights.");
     if (m_themeId == "emerald-reactor")
         return QObject::tr("A deep green interface with energetic teal accents.");
-    return QObject::tr("A dark interface with orange accents.");
+    return QObject::tr("A dark interface with cool teal accents.");
 }
 
 QString BoostTheme::appStyleSheet()

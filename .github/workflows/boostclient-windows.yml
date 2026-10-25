@@ -1,0 +1,71 @@
+name: BoostClient Windows x64 Release
+on:
+  workflow_dispatch:
+jobs:
+  windows-x64-release:
+    runs-on: windows-2022
+    permissions:
+      contents: read
+      packages: write
+    env:
+      BUILD_TYPE: Release
+      BUILD_PLATFORM: official
+      CMAKE_PRESET: windows_msvc
+      ARTIFACT_NAME: BoostClient-Windows-x64
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - name: Setup Windows dependencies
+        uses: ./.github/actions/setup-dependencies
+        with:
+          build-type: ${{ env.BUILD_TYPE }}
+          artifact-name: ${{ env.ARTIFACT_NAME }}
+          vcvars-arch: amd64
+          qt-version: 6.11.2
+      - name: Configure
+        shell: bash
+        run: cmake --preset "$CMAKE_PRESET" -D VCPKG_HOST_TRIPLET="$VCPKG_TRIPLET" -D VCPKG_TARGET_TRIPLET="$VCPKG_TRIPLET"
+      - name: Build Release
+        shell: bash
+        run: cmake --build --preset "$CMAKE_PRESET" --config "$BUILD_TYPE" --parallel 4
+      - name: Run tests
+        id: tests
+        continue-on-error: true
+        shell: bash
+        run: ctest --preset "$CMAKE_PRESET" --build-config "$BUILD_TYPE" --output-on-failure
+      - name: Package portable release
+        shell: pwsh
+        env:
+          TEST_RESULT: ${{ steps.tests.outcome }}
+        run: |
+          cmake --install build --config $env:BUILD_TYPE
+          Copy-Item install install-portable -Recurse
+          cmake --install build --config $env:BUILD_TYPE --prefix install-portable --component portable
+          if (-not (Test-Path install-portable/boostclient.exe)) { throw 'boostclient.exe missing from portable install' }
+          Compress-Archive -Path install-portable/* -DestinationPath BoostClient-Windows-x64-Release.zip -CompressionLevel Optimal -Force
+          Copy-Item install-portable/boostclient.exe BoostClient.exe -Force
+          Push-Location install-portable
+          & ../boostclient.exe --help
+          $smokeExit = $LASTEXITCODE
+          Pop-Location
+          if ($smokeExit -ne 0) { throw "BoostClient --help smoke test failed (exit $smokeExit)" }
+          $hash = (Get-FileHash BoostClient-Windows-x64-Release.zip -Algorithm SHA256).Hash
+          $exeHash = (Get-FileHash BoostClient.exe -Algorithm SHA256).Hash
+          "Commit: $env:GITHUB_SHA" | Set-Content release-report.txt
+          "Tests: $env:TEST_RESULT" | Add-Content release-report.txt
+          "Smoke test: passed (--help)" | Add-Content release-report.txt
+          "ZIP SHA-256: $hash" | Add-Content release-report.txt
+          "EXE SHA-256: $exeHash" | Add-Content release-report.txt
+          "Release ZIP SHA-256: $hash" | Add-Content $env:GITHUB_STEP_SUMMARY
+          "BoostClient.exe SHA-256: $exeHash" | Add-Content $env:GITHUB_STEP_SUMMARY
+      - name: Upload release package
+        uses: actions/upload-artifact@v7
+        with:
+          name: BoostClient-Windows-x64-Release
+          path: |
+            BoostClient-Windows-x64-Release.zip
+            BoostClient.exe
+            release-report.txt
+          if-no-files-found: error
