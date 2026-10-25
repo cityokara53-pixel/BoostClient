@@ -145,6 +145,22 @@ shared_qobject_ptr<AuthFlow> MinecraftAccount::currentTask()
     return m_currentTask;
 }
 
+bool MinecraftAccount::setLocalSkin(const QByteArray& skinData, const QString& variant, const QString& skinKey)
+{
+    if (accountType() != AccountType::Offline || skinData.isEmpty() || skinKey.isEmpty()) {
+        return false;
+    }
+
+    auto& skin = data.minecraftProfile.skin;
+    skin.id = QStringLiteral("local:") + skinKey;
+    skin.url.clear();
+    skin.variant = variant.compare(QStringLiteral("slim"), Qt::CaseInsensitive) == 0 ? QStringLiteral("slim")
+                                                                                     : QStringLiteral("classic");
+    skin.data = skinData;
+    emit changed();
+    return true;
+}
+
 void MinecraftAccount::authSucceeded()
 {
     m_currentTask.reset();
@@ -251,7 +267,10 @@ void MinecraftAccount::fillSession(AuthSessionPtr session)
         session->uuid = uuidFromUsername(session->player_name).toString(QUuid::Id128);
     // 'legacy' or 'mojang', depending on account type
     session->user_type = typeString();
-    if (!session->access_token.isEmpty()) {
+    if (accountType() == AccountType::Offline) {
+        session->access_token = "0";
+        session->session = "-";
+    } else if (!session->access_token.isEmpty()) {
         session->session = "token:" + data.accessToken() + ":" + data.profileId();
     } else {
         session->session = "-";

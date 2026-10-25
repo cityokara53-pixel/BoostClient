@@ -1,0 +1,6 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/skinpacks">
+        <file alias="BoostClient_Skins.zip">skins/BoostClient_Skins.zip</file>
+    </qresource>
+</RCC>

@@ -18,6 +18,7 @@ class WideBar : public QToolBar {
 
     void addAction(QAction* action);
     void addSeparator();
+    QWidget* widgetForAction(QAction* action) const;
 
     void insertSpacer(QAction* action);
     void insertSeparator(QAction* before);

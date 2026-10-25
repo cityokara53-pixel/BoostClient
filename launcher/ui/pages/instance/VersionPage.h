@@ -92,6 +92,7 @@ class VersionPage : public QMainWindow, public BasePage {
     void updateButtons(int row = -1);
     void preselect(int row = 0);
     int doUpdate();
+    void checkModsAfterMinecraftVersionChange();
 
    protected:
     QMenu* createPopupMenu() override;

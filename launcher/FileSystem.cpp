@@ -785,7 +785,7 @@ void ExternalLinkFileProcess::runLinkFile()
     params += " -H " + QVariant(m_useHardLinks).toString();
 
 #if defined Q_OS_WIN32
-    SHELLEXECUTEINFO ShExecInfo;
+    SHELLEXECUTEINFO ShExecInfo{};
 
     fileLinkExe = fileLinkExe + ".exe";
 
@@ -806,9 +806,20 @@ void ExternalLinkFileProcess::runLinkFile()
     ShExecInfo.nShow = SW_HIDE;
     ShExecInfo.hInstApp = NULL;
 
-    ShellExecuteEx(&ShExecInfo);
+    if (!ShellExecuteEx(&ShExecInfo)) {
+        qWarning() << "Failed to start elevated file-link helper:" << fileLinkExe << "error" << GetLastError();
+        return;
+    }
 
-    WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
+    if (!ShExecInfo.hProcess) {
+        qWarning() << "Elevated file-link helper started without a process handle:" << fileLinkExe;
+        return;
+    }
+
+    const DWORD waitResult = WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
+    if (waitResult != WAIT_OBJECT_0) {
+        qWarning() << "Waiting for elevated file-link helper failed:" << fileLinkExe << "error" << GetLastError();
+    }
     CloseHandle(ShExecInfo.hProcess);
 #endif
 

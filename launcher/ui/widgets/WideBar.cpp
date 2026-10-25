@@ -82,6 +82,16 @@ void WideBar::addSeparator()
     m_entries.push_back(entry);
 }
 
+QWidget* WideBar::widgetForAction(QAction* action) const
+{
+    const auto iter = std::ranges::find_if(m_entries, [action](const BarEntry& entry) { return entry.menu_action == action; });
+    if (iter == m_entries.cend()) {
+        return nullptr;
+    }
+
+    return QToolBar::widgetForAction(iter->bar_action);
+}
+
 auto WideBar::getMatching(QAction* act) -> QList<BarEntry>::iterator
 {
     auto iter = std::ranges::find_if(m_entries, [act](const BarEntry& entry) { return entry.menu_action == act; });

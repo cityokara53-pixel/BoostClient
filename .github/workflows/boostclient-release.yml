@@ -1,0 +1,112 @@
+name: Build and publish BoostClient
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+
+permissions: {}
+
+jobs:
+  windows-release:
+    name: Windows installer and updater
+    runs-on: windows-2022
+    permissions:
+      contents: write
+      id-token: write
+      packages: write
+
+    env:
+      ARTIFACT_NAME: Windows-MSVC-Qt6
+      BUILD_PLATFORM: Windows-MSVC
+      BUILD_TYPE: Release
+      CMAKE_PRESET: windows_msvc
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7
+        with:
+          submodules: "true"
+
+      - name: Require a public repository for anonymous updates
+        if: ${{ github.event.repository.private }}
+        shell: pwsh
+        run: throw "BoostClient's updater needs public GitHub Releases; make this repository public before creating releases."
+
+      - name: Set up build dependencies
+        uses: ./.github/actions/setup-dependencies
+        with:
+          build-type: Release
+          artifact-name: Windows-MSVC
+          vcvars-arch: amd64
+          qt-version: 6.9.3
+
+      - name: Read version from tag
+        id: version
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF_NAME -notmatch '^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$') {
+            throw "Expected a release tag like 1.2.3"
+          }
+          "version=$env:GITHUB_REF_NAME" >> $env:GITHUB_OUTPUT
+          "major=$($Matches.major)" >> $env:GITHUB_OUTPUT
+          "minor=$($Matches.minor)" >> $env:GITHUB_OUTPUT
+          "patch=$($Matches.patch)" >> $env:GITHUB_OUTPUT
+
+      - name: Configure BoostClient
+        shell: pwsh
+        env:
+          BOOSTCLIENT_VERSION_MAJOR: ${{ steps.version.outputs.major }}
+          BOOSTCLIENT_VERSION_MINOR: ${{ steps.version.outputs.minor }}
+          BOOSTCLIENT_VERSION_PATCH: ${{ steps.version.outputs.patch }}
+        run: |
+          cmake --preset $env:CMAKE_PRESET `
+            "-DLauncher_UPDATER_GITHUB_REPO=$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY" `
+            "-DVCPKG_HOST_TRIPLET=$env:VCPKG_TRIPLET" `
+            "-DVCPKG_TARGET_TRIPLET=$env:VCPKG_TRIPLET"
+
+      - name: Build
+        shell: pwsh
+        run: cmake --build --preset $env:CMAKE_PRESET --config $env:BUILD_TYPE
+
+      - name: Test
+        shell: pwsh
+        run: ctest --test-dir build --build-config Release --output-on-failure --exclude-regex "^FileSystem$"
+
+      - name: Package installer
+        uses: ./.github/actions/package/windows
+        env:
+          CI_HAS_ACCESS_TO_AZURE: ${{ vars.CI_HAS_ACCESS_TO_AZURE || '' }}
+        with:
+          version: ${{ steps.version.outputs.version }}
+          build-type: Release
+          artifact-name: Windows-MSVC-Qt6
+          msystem: ""
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Download installer artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: BoostClient-Windows-MSVC-Qt6-Setup-${{ steps.version.outputs.version }}-Release
+          path: release
+
+      - name: Prepare release assets
+        id: assets
+        shell: pwsh
+        run: |
+          $installer = "BoostClient-Windows-MSVC-Setup-${{ steps.version.outputs.version }}.exe"
+          Move-Item "release\BoostClient-Setup.exe" "release\$installer"
+          $hash = (Get-FileHash "release\$installer" -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $installer" | Set-Content "release\SHA256SUMS.txt" -Encoding ascii
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: BoostClient ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            release/BoostClient-Windows-MSVC-Setup-${{ steps.version.outputs.version }}.exe
+            release/SHA256SUMS.txt

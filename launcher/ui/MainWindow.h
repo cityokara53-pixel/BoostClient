@@ -42,6 +42,7 @@
 
 #include <QMainWindow>
 #include <QProcess>
+#include <QSystemTrayIcon>
 #include <QTimer>
 
 #include "minecraft/auth/MinecraftAccount.h"
@@ -50,7 +51,14 @@ class LaunchController;
 class NewsChecker;
 class QToolButton;
 class InstanceProxyModel;
+class QComboBox;
 class QLabel;
+class QPushButton;
+class QResizeEvent;
+class QShowEvent;
+class QStackedWidget;
+class QWidget;
+class QGridLayout;
 class MinecraftInstance;
 class MinecraftLauncher;
 class BaseProfilerFactory;
@@ -82,6 +90,11 @@ class MainWindow : public QMainWindow {
 
    protected:
     QMenu* createPopupMenu() override;
+    void resizeEvent(QResizeEvent* event) override;
+#ifdef Q_OS_WIN
+    bool nativeEvent(const QByteArray& eventType, void* message, qintptr* result) override;
+    void showEvent(QShowEvent* event) override;
+#endif
 
    private slots:
     void onCatToggled(bool);
@@ -178,6 +191,8 @@ class MainWindow : public QMainWindow {
 
     void updateLaunchButton();
 
+    void updateHomeDashboard();
+
     void updateThemeMenu();
 
     void instanceActivated(QModelIndex);
@@ -204,6 +219,10 @@ class MainWindow : public QMainWindow {
 
     void globalSettingsClosed();
 
+    void trayActivated(QSystemTrayIcon::ActivationReason reason);
+    void toggleWindowVisibility();
+    void quitFromTray();
+
     void setStatusBarVisibility(bool);
 
     void lockToolbars(bool);
@@ -228,6 +247,10 @@ class MainWindow : public QMainWindow {
     void setSelectedInstanceById(const QString& id);
     void updateStatusCenter();
     void setInstanceActionsEnabled(bool enabled);
+    void updateAccountCards();
+    void scheduleAccountCardsUpdate();
+    void reflowAccountCards();
+    void updateLibraryCards();
 
     void runModalTask(Task* task);
     void instanceFromInstanceTask(InstanceTask* task);
@@ -237,6 +260,22 @@ class MainWindow : public QMainWindow {
     // these are managed by Qt's memory management model!
     InstanceView* view = nullptr;
     InstanceProxyModel* proxymodel = nullptr;
+    QStackedWidget* m_contentPages = nullptr;
+    QStackedWidget* m_libraryContentStack = nullptr;
+    QWidget* m_homePage = nullptr;
+    QWidget* m_libraryPage = nullptr;
+    QLabel* m_homeProfileName = nullptr;
+    QLabel* m_homeProfileStatus = nullptr;
+    QComboBox* m_homeInstanceSelector = nullptr;
+    QComboBox* m_homeVersionSelector = nullptr;
+    QComboBox* m_homeLoaderSelector = nullptr;
+    QLabel* m_homeGreeting = nullptr;
+    QLabel* m_homeGreetingSubtitle = nullptr;
+    QLabel* m_homeAvatar = nullptr;
+    QPushButton* m_homeAccountButton = nullptr;
+    QPushButton* m_homePlayButton = nullptr;
+    QPushButton* m_homeManageButton = nullptr;
+    bool m_accountCardsUpdatePending = false;
     QToolButton* newsLabel = nullptr;
     QLabel* m_statusLeft = nullptr;
     QLabel* m_statusCenter = nullptr;
@@ -244,7 +283,16 @@ class MainWindow : public QMainWindow {
     QAction* instanceInfoWidget = nullptr;
     QLabel* nameLabel = nullptr;
     QToolButton* helpMenuButton = nullptr;
+#ifdef Q_OS_WIN
+    QToolButton* m_windowMaximizeButton = nullptr;
+    void positionWindowControls();
+#endif
     KonamiCode* secretEventFilter = nullptr;
+
+    QSystemTrayIcon* m_trayIcon = nullptr;
+    QMenu* m_trayMenu = nullptr;
+    QAction* m_trayShowHideAction = nullptr;
+    QAction* m_trayQuitAction = nullptr;
 
     unique_qobject_ptr<NewsChecker> m_newsChecker;
 

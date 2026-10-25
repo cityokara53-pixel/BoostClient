@@ -18,8 +18,11 @@
 
 #include "SkinList.h"
 
+#include <QBuffer>
 #include <QFileInfo>
+#include <QImageReader>
 #include <QMimeData>
+#include <QSaveFile>
 
 #include "FileSystem.h"
 #include "Json.h"
@@ -300,12 +303,61 @@ QString SkinList::installSkin(const QString& file, const QString& name)
         return tr("Not a file.");
     if (!fileinfo.isReadable())
         return tr("File is not readable.");
-    if (fileinfo.suffix() != "png" && !SkinModel(fileinfo.absoluteFilePath()).isValid())
+    if (fileinfo.size() <= 0 || fileinfo.size() > 1024 * 1024)
+        return tr("Skin PNG files must be no larger than 1 MiB.");
+    QImageReader reader(fileinfo.absoluteFilePath());
+    reader.setDecideFormatFromContent(true);
+    if (!reader.canRead() || reader.format().toLower() != "png")
+        return tr("Skin images must be PNG files.");
+    const auto imageSize = reader.size();
+    if (imageSize.width() != 64 || (imageSize.height() != 32 && imageSize.height() != 64))
         return tr("Skin images must be 64x64 or 64x32 pixel PNG files.");
+    if (reader.read().isNull())
+        return tr("Skin image is not a valid PNG.");
 
     QString target = getUniqueFile(m_dir.absolutePath(), name.isEmpty() ? fileinfo.fileName() : name);
 
     return QFile::copy(file, target) ? "" : tr("Unable to copy file");
+}
+
+QString SkinList::installSkinData(const QByteArray& data, const QString& name, SkinModel::Model model, QString* installedName)
+{
+    if (data.isEmpty() || data.size() > 1024 * 1024)
+        return tr("The online skin image is empty or exceeds the size limit.");
+
+    QBuffer buffer;
+    buffer.setData(data);
+    if (!buffer.open(QIODevice::ReadOnly))
+        return tr("Unable to read the online skin image.");
+    QImageReader reader(&buffer, "PNG");
+    const auto imageSize = reader.size();
+    if (imageSize.width() != 64 || (imageSize.height() != 32 && imageSize.height() != 64))
+        return tr("Skin images must be 64x64 or 64x32 pixel PNG files.");
+    if (reader.read().isNull())
+        return tr("The online skin image is not a valid PNG.");
+
+    const auto targetName = name + ".png";
+    const auto target = getUniqueFile(m_dir.absolutePath(), targetName);
+    if (target.isEmpty())
+        return tr("Unable to choose a unique skin filename.");
+    QSaveFile file(target);
+    if (!file.open(QIODevice::WriteOnly) || file.write(data) != data.size() || !file.commit())
+        return tr("Unable to save the online skin image.");
+
+    SkinModel skin(target);
+    if (!skin.isValid()) {
+        QFile::remove(target);
+        return tr("The online image is not a valid Minecraft skin.");
+    }
+    skin.setModel(model);
+    skin.setCapeId(m_acct->accountData()->minecraftProfile.currentCape);
+    beginInsertRows(QModelIndex(), m_skinList.count(), m_skinList.count());
+    m_skinList.append(skin);
+    endInsertRows();
+    save();
+    if (installedName)
+        *installedName = skin.name();
+    return {};
 }
 
 int SkinList::getSkinIndex(const QString& key) const
@@ -372,6 +424,10 @@ int SkinList::getSelectedAccountSkin()
 {
     const auto& skin = m_acct->accountData()->minecraftProfile.skin;
     for (int i = 0; i < m_skinList.count(); i++) {
+        if (m_acct->accountType() == AccountType::Offline && skin.id.startsWith(QStringLiteral("local:")) &&
+            m_skinList[i].name() == skin.id.mid(6)) {
+            return i;
+        }
         if (m_skinList[i].getURL() == skin.url) {
             return i;
         }
@@ -391,9 +447,12 @@ bool SkinList::setData(const QModelIndex& idx, const QVariant& value, int role)
     auto& skin = m_skinList[row];
     auto newName = value.toString();
     if (skin.name() != newName) {
+        const auto oldName = skin.name();
         if (!skin.rename(newName))
             return false;
         save();
+        emit dataChanged(idx, idx, { Qt::DisplayRole, Qt::ToolTipRole, Qt::UserRole, Qt::EditRole });
+        emit skinRenamed(oldName, skin.name());
     }
     return true;
 }

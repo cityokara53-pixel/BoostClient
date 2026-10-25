@@ -4,7 +4,7 @@
 #include <QJsonObject>
 #include <QStringList>
 
-QString AuthSession::serializeUserProperties()
+QString AuthSession::serializeUserProperties() const
 {
     QJsonObject userAttrs;
     /*
@@ -16,6 +16,18 @@ QString AuthSession::serializeUserProperties()
     */
     QJsonDocument value(userAttrs);
     return value.toJson(QJsonDocument::Compact);
+}
+
+QMap<QString, QString> AuthSession::argumentMapping() const
+{
+    return {
+        { "auth_session", session },
+        { "auth_access_token", access_token },
+        { "auth_player_name", player_name },
+        { "auth_uuid", uuid },
+        { "user_properties", serializeUserProperties() },
+        { "user_type", user_type },
+    };
 }
 
 bool AuthSession::MakeOffline(QString offline_playername)

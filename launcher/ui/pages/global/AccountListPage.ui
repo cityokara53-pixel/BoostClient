@@ -56,12 +56,11 @@
    <addaction name="actionAddOffline"/>
    <addaction name="actionRefresh"/>
    <addaction name="actionRemove"/>
+   <addaction name="actionManageSkins"/>
    <addaction name="actionSetDefault"/>
    <addaction name="actionNoDefault"/>
    <addaction name="actionMoveUp"/>
    <addaction name="actionMoveDown"/>
-   <addaction name="separator"/>
-   <addaction name="actionManageSkins"/>
   </widget>
   <action name="actionSetDefault">
    <property name="text">

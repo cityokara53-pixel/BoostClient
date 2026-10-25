@@ -47,6 +47,7 @@ class SkinList : public QAbstractListModel {
 
     void installSkins(const QStringList& iconFiles);
     QString installSkin(const QString& file, const QString& name = {});
+    QString installSkinData(const QByteArray& data, const QString& name, SkinModel::Model model, QString* installedName);
 
     const SkinModel* skin(const QString& key) const;
     SkinModel* skin(const QString& key);
@@ -59,6 +60,9 @@ class SkinList : public QAbstractListModel {
     int getSelectedAccountSkin();
 
     void updateSkin(SkinModel* s);
+
+   signals:
+    void skinRenamed(const QString& oldName, const QString& newName);
 
    private:
     // hide copy constructor

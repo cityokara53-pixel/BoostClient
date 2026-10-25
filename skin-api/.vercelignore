@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+*.env
+*.env.*
+**/skin-apis.env
+**/*.pem
+**/node_modules
+**/test
+**/tests
+**/.vercel
+README.md

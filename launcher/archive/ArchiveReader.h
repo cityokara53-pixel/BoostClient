@@ -53,6 +53,7 @@ class ArchiveReader {
 
         QString filename();
         bool isFile();
+        qint64 size() const;
         QDateTime dateTime();
         const char* error();
 

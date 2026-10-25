@@ -13,15 +13,13 @@
 
 # DESCRIPTION
 
-Prism Launcher is a custom launcher for Minecraft that allows you to easily manage
-multiple installations of Minecraft at once. It also allows you to easily
-install and remove mods by simply dragging and dropping.
-Here are the current features of Prism Launcher.
+BoostClient is an independent, modified launcher based on Prism Launcher. It
+allows you to manage separate Minecraft installations and mods.
 
 # OPTIONS
 
 *-d, --dir*=DIRECTORY
-	Use DIRECTORY as the Prism Launcher root.
+	Use DIRECTORY as the BoostClient root.
 
 *-l, --launch*=INSTANCE_ID
 	Launch the instance specified by INSTANCE_ID.
@@ -30,7 +28,7 @@ Here are the current features of Prism Launcher.
 	Show the configuration window of the instance specified by INSTANCE_ID.
 
 *--alive*
-	Write a small 'live.check' file after Prism Launcher starts.
+	Write a small 'live.check' file after BoostClient starts.
 
 *-h, --help*
 	Display help text and exit.

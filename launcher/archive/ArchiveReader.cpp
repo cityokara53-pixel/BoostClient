@@ -258,6 +258,10 @@ bool ArchiveReader::File::isFile()
 {
     return (archive_entry_filetype(m_entry) & AE_IFMT) == AE_IFREG;
 }
+qint64 ArchiveReader::File::size() const
+{
+    return archive_entry_size(m_entry);
+}
 Result<> ArchiveReader::File::skip()
 {
     if (archive_read_data_skip(m_archive.get()) < ARCHIVE_OK) {

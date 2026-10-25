@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QMap>
 #include <QString>
 #include <memory>
 
@@ -11,7 +12,8 @@ struct AuthSession {
     bool MakeOffline(QString offline_playername);
     void MakeDemo(QString name, QString uuid);
 
-    QString serializeUserProperties();
+    QString serializeUserProperties() const;
+    QMap<QString, QString> argumentMapping() const;
 
     // combined session ID
     QString session;

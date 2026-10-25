@@ -37,6 +37,7 @@ class SkinModel {
     QString getPath() const { return m_path; }
     QImage getTexture() const { return m_texture; }
     QImage getPreview() const { return m_preview; }
+    static QImage previewFromTexture(QImage texture, Model model);
     QString getCapeId() const { return m_capeId; }
     Model getModel() const { return m_model; }
     QString getURL() const { return m_url; }

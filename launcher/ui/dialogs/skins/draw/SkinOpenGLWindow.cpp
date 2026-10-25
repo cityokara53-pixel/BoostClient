@@ -118,7 +118,7 @@ void SkinOpenGLWindow::initializeGL()
 {
     initializeOpenGLFunctions();
 
-    glClearColor(0, 0, 1, 1);
+    glClearColor(m_baseColor.redF(), m_baseColor.greenF(), m_baseColor.blueF(), 1.0f);
 
     initShaders();
 
@@ -284,7 +284,7 @@ QImage generateChessboardImage(int width, int height, int tileSize, QColor baseC
 {
     QImage image(width, height, QImage::Format_RGB888);
     bool isDarkBase = Rainbow::luma(baseColor) < 0.5;
-    float contrast = isDarkBase ? 0.05 : 0.45;
+    float contrast = isDarkBase ? 0.02 : 0.45;
     auto contrastFunc = std::bind(isDarkBase ? Rainbow::lighten : Rainbow::darken, std::placeholders::_1, contrast, 1.0);
     auto white = contrastFunc(baseColor);
     auto black = contrastFunc(calculateContrastingColor(baseColor));

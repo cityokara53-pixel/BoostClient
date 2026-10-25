@@ -47,6 +47,19 @@ run/
 
 .cache/
 
+# Local credentials and skin API configuration
+.env
+.env.*
+!.env.example
+*.env
+*.env.*
+**/skin-apis.env
+*.pem
+*.key
+*.p12
+*.pfx
+/skin-api/.vercel
+
 # Nix/NixOS
 .direnv/
 ## Used when manually invoking stdenv phases

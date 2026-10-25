@@ -50,12 +50,17 @@
 #include <QString>
 #include <QUrl>
 #include <algorithm>
+#include <memory>
 
 #include "QObjectPtr.h"
 #include "VersionPage.h"
 #include "meta/JsonFormat.h"
+#include "minecraft/mod/Mod.h"
+#include "minecraft/mod/ModFolderModel.h"
+#include "tasks/ConcurrentTask.h"
 #include "tasks/SequentialTask.h"
 #include "ui/dialogs/InstallLoaderDialog.h"
+#include "ui/dialogs/ResourceUpdateDialog.h"
 #include "ui_VersionPage.h"
 
 #include "ui/dialogs/CustomMessageBox.h"
@@ -381,6 +386,9 @@ void VersionPage::on_actionChange_version_triggered()
 
     qDebug() << "Change" << uid << "to" << vselect.selectedVersion()->descriptor();
     bool important = false;
+    const auto targetMinecraftVersion = vselect.selectedVersion()->descriptor();
+    const bool minecraftVersionChanged =
+        uid == "net.minecraft" && targetMinecraftVersion != m_profile->getComponentVersion("net.minecraft");
     if (uid == "net.minecraft") {
         important = true;
         if (APPLICATION->settings()->get("AutomaticJavaSwitch").toBool() && m_inst->settings()->get("AutomaticJava").toBool() &&
@@ -394,7 +402,140 @@ void VersionPage::on_actionChange_version_triggered()
     }
     m_profile->setComponentVersion(uid, vselect.selectedVersion()->descriptor(), important);
     m_profile->resolve(Net::Mode::Online);
+    if (minecraftVersionChanged) {
+        const auto targetVersion = targetMinecraftVersion;
+        auto updateTask = m_profile->getCurrentTask();
+        if (updateTask) {
+            connect(updateTask.get(), &Task::succeeded, this, [this, targetVersion] {
+                if (m_profile->getComponentVersion("net.minecraft") == targetVersion) {
+                    checkModsAfterMinecraftVersionChange();
+                }
+            });
+        }
+    }
     m_container->refreshContainer();
+}
+
+void VersionPage::checkModsAfterMinecraftVersionChange()
+{
+    if (m_inst->isRunning()) {
+        const auto response = CustomMessageBox::selectable(
+                                  this, tr("Confirm mod migration"),
+                                  tr("Updating mods while Minecraft is running may cause duplicate files or crashes. Continue?"),
+                                  QMessageBox::Warning, QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
+                                  ->exec();
+        if (response != QMessageBox::Yes) {
+            return;
+        }
+    }
+
+    auto* model = m_inst->loaderModList();
+    auto migrationStarted = std::make_shared<bool>(false);
+    auto tryStartMigration = [this, model, migrationStarted](
+                                 const std::shared_ptr<bool>& refreshFinished,
+                                 const std::shared_ptr<QMetaObject::Connection>& parseConnection) {
+        if (*migrationStarted || !*refreshFinished || model->hasPendingParseTasks()) {
+            return;
+        }
+        *migrationStarted = true;
+        QObject::disconnect(*parseConnection);
+        *parseConnection = {};
+
+        auto mods = model->allMods();
+        if (mods.isEmpty()) {
+            return;
+        }
+        QList<Resource*> candidates;
+        QStringList skipped;
+        for (auto* mod : mods) {
+            if (mod->lockUpdate()) {
+                skipped.append(tr("%1 (%2): updates are locked").arg(mod->name(), mod->fileinfo().fileName()));
+            } else if (!mod->metadata()) {
+                skipped.append(tr("%1 (%2): the download source could not be identified")
+                                   .arg(mod->name(), mod->fileinfo().fileName()));
+            } else {
+                candidates.append(mod);
+            }
+        }
+
+        if (APPLICATION->settings()->get("ModMetadataDisabled").toBool()) {
+            CustomMessageBox::selectable(
+                this, tr("Mod compatibility check unavailable"),
+                tr("Minecraft was changed, but automatic mod migration is disabled because mod metadata is turned off. "
+                   "Your mod files were left unchanged."),
+                QMessageBox::Warning)
+                ->exec();
+            return;
+        }
+
+        if (!skipped.isEmpty()) {
+            CustomMessageBox::selectable(
+                this, tr("Some mods were not checked"),
+                tr("These files were left unchanged. You can update or remove them manually after checking their compatibility:\n\n%1")
+                    .arg(skipped.join('\n')),
+                QMessageBox::Warning)
+                ->exec();
+        }
+
+        if (candidates.isEmpty()) {
+            return;
+        }
+
+        auto* profile = m_inst->getPackProfile();
+        ResourceUpdateDialog updateDialog(this, m_inst, model, candidates, false, profile->getModLoadersList());
+        updateDialog.checkCandidates();
+        if (updateDialog.aborted()) {
+            return;
+        }
+        if (updateDialog.noUpdates()) {
+            CustomMessageBox::selectable(
+                this, tr("Mod compatibility check complete"),
+                tr("No replacement mod versions were available for the target Minecraft version. Existing files were left unchanged. "
+                   "If a mod still fails to load, check it manually."),
+                QMessageBox::Information)
+                ->exec();
+            return;
+        }
+        if (updateDialog.exec() == 0) {
+            return;
+        }
+
+        const auto downloadTasks = updateDialog.getTasks();
+        if (downloadTasks.isEmpty()) {
+            return;
+        }
+        ConcurrentTask tasks(tr("Update Mods"), APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+        for (const auto& task : downloadTasks) {
+            tasks.addTask(task);
+        }
+
+        connect(&tasks, &Task::failed, this, [this](const QString& reason) {
+            CustomMessageBox::selectable(this, tr("Mod migration failed"), reason, QMessageBox::Critical)->show();
+        });
+        connect(&tasks, &Task::succeeded, this, [this, &tasks] {
+            const QStringList warnings = tasks.warnings();
+            if (!warnings.isEmpty()) {
+                CustomMessageBox::selectable(this, tr("Mod migration warnings"), warnings.join('\n'), QMessageBox::Warning)->show();
+            }
+        });
+        ProgressDialog progressDialog(this);
+        progressDialog.showSkipButton();
+        progressDialog.setWindowTitle(tr("Updating mods for the new Minecraft version"));
+        progressDialog.execWithTask(&tasks);
+        model->update();
+    };
+
+    auto refreshFinished = std::make_shared<bool>(false);
+    auto parseConnection = std::make_shared<QMetaObject::Connection>();
+    *parseConnection = connect(model, &ResourceFolderModel::parseFinished, this,
+                               [tryStartMigration, refreshFinished, parseConnection] {
+                                   tryStartMigration(refreshFinished, parseConnection);
+                               });
+    connect(model, &ResourceFolderModel::updateFinished, this, [tryStartMigration, refreshFinished, parseConnection] {
+        *refreshFinished = true;
+        tryStartMigration(refreshFinished, parseConnection);
+    });
+    model->update();
 }
 
 void VersionPage::on_actionDownload_All_triggered()

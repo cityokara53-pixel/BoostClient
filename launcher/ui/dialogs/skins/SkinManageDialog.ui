@@ -6,37 +6,403 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>968</width>
-    <height>757</height>
+    <width>1280</width>
+    <height>680</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Skin Upload</string>
+  <property name="minimumSize">
+   <size>
+    <width>1120</width>
+    <height>620</height>
+   </size>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <property name="windowTitle">
+   <string>Skin Studio</string>
+  </property>
+  <layout class="QHBoxLayout" name="rootLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
-    <layout class="QHBoxLayout" name="mainHlLayout" stretch="3,8">
+    <widget class="QWidget" name="studioSidebar">
+     <property name="minimumSize">
+      <size>
+       <width>170</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>170</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #061426; border-right: 1px solid #18304c;</string>
+     </property>
+     <layout class="QVBoxLayout" name="sidebarLayout">
+      <property name="spacing">
+       <number>5</number>
+      </property>
+      <property name="leftMargin">
+       <number>4</number>
+      </property>
+      <property name="topMargin">
+       <number>8</number>
+      </property>
+      <property name="rightMargin">
+       <number>4</number>
+      </property>
+      <property name="bottomMargin">
+       <number>8</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="brandLayout">
+        <property name="leftMargin">
+         <number>4</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>8</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="brandIconLabel">
+          <property name="minimumSize">
+           <size>
+            <width>30</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>30</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="brandNameLabel">
+          <property name="text">
+           <string>BoostClient</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QToolButton" name="navPlayButton">
+        <property name="text">
+         <string>Play</string>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonStyle::ToolButtonTextBesideIcon</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="navInstancesButton">
+        <property name="text">
+         <string>Instances</string>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonStyle::ToolButtonTextBesideIcon</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="navModsButton">
+        <property name="text">
+         <string>Mods</string>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonStyle::ToolButtonTextBesideIcon</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="navAccountsButton">
+        <property name="text">
+         <string>Accounts</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonStyle::ToolButtonTextBesideIcon</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="navAiHelpButton">
+        <property name="text">
+         <string>AI Help</string>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonStyle::ToolButtonTextBesideIcon</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="navNewsButton">
+        <property name="text">
+         <string>News</string>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonStyle::ToolButtonTextBesideIcon</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="navDiscordButton">
+        <property name="text">
+         <string>Discord</string>
+        </property>
+        <property name="toolButtonStyle">
+         <enum>Qt::ToolButtonStyle::ToolButtonTextBesideIcon</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="sidebarSpacer">
+        <property name="orientation">
+         <enum>Qt::Orientation::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="brandFooterLabel">
+        <property name="text">
+        <string>BoostClient</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="openDirBtn">
+        <property name="text">
+         <string>Open Library Folder</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="studioContent">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>12</number>
+   </property>
+   <property name="leftMargin">
+    <number>18</number>
+   </property>
+   <property name="topMargin">
+    <number>16</number>
+   </property>
+   <property name="rightMargin">
+    <number>18</number>
+   </property>
+   <property name="bottomMargin">
+    <number>14</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" name="headerLayout">
      <item>
-      <layout class="QVBoxLayout" name="selectedVLayout" stretch="2,1,3">
+       <widget class="QLabel" name="studioIconLabel">
+        <property name="minimumSize">
+         <size>
+          <width>48</width>
+          <height>48</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>48</width>
+          <height>48</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="titleLayout">
+       <property name="spacing">
+        <number>1</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="titleLabel">
+         <property name="text">
+          <string>Skin Studio</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="subtitleLabel">
+         <property name="text">
+          <string>Browse free skins, preview your character, and build your collection.</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer name="headerSpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="fileBtn">
+       <property name="text">
+        <string>Import Skin</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="closeStudioBtn">
+       <property name="text">
+        <string>×</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="studioTabsLayout">
+     <property name="spacing">
+      <number>8</number>
+     </property>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="mainHlLayout">
+     <property name="spacing">
+      <number>16</number>
+     </property>
+     <attribute name="stretch">
+      <string>7,4</string>
+     </attribute>
+     <item>
+      <layout class="QVBoxLayout" name="browserLayout">
+       <property name="spacing">
+        <number>8</number>
+       </property>
+       <item>
+        <layout class="QHBoxLayout" name="catalogApiLayout"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="catalogSearchLayout"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="catalogCategoryLayout"/>
+       </item>
+       <item>
+        <widget class="QListView" name="listView">
+         <property name="contextMenuPolicy">
+          <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
+         </property>
+         <property name="acceptDrops">
+          <bool>false</bool>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+         </property>
+         <property name="verticalScrollMode">
+          <enum>QAbstractItemView::ScrollMode::ScrollPerPixel</enum>
+         </property>
+         <property name="movement">
+          <enum>QListView::Movement::Static</enum>
+         </property>
+         <property name="resizeMode">
+          <enum>QListView::ResizeMode::Adjust</enum>
+         </property>
+         <property name="spacing">
+          <number>10</number>
+         </property>
+         <property name="viewMode">
+          <enum>QListView::ViewMode::IconMode</enum>
+         </property>
+         <property name="modelColumn">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QFrame" name="previewPanel">
+       <property name="frameShape">
+        <enum>QFrame::Shape::NoFrame</enum>
+       </property>
+       <layout class="QVBoxLayout" name="selectedVLayout">
+       <property name="spacing">
+        <number>10</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="previewTitleLabel">
+         <property name="text">
+          <string>CHARACTER PREVIEW · DRAG TO ROTATE</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <layout class="QVBoxLayout" name="skinLayout"/>
        </item>
        <item>
+        <widget class="QLabel" name="skinNameLabel">
+         <property name="text">
+          <string>Select a skin to preview</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="modelBox">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
          <property name="title">
-          <string>Model</string>
+          <string>Character Model</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <layout class="QHBoxLayout" name="modelLayout">
           <item>
            <widget class="QRadioButton" name="steveBtn">
             <property name="text">
-             <string>Classic</string>
+             <string>Classic (Steve)</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -46,7 +412,7 @@
           <item>
            <widget class="QRadioButton" name="alexBtn">
             <property name="text">
-             <string>Slim</string>
+             <string>Slim (Alex)</string>
             </property>
            </widget>
           </item>
@@ -56,9 +422,12 @@
        <item>
         <widget class="QGroupBox" name="capeBox">
          <property name="title">
-          <string>Cape</string>
+          <string>Cape &amp; Elytra</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_4">
+         <layout class="QVBoxLayout" name="capeLayout">
+          <item>
+           <widget class="QComboBox" name="capeCombo"/>
+          </item>
           <item>
            <widget class="QCheckBox" name="elytraCB">
             <property name="text">
@@ -67,79 +436,63 @@
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="capeCombo"/>
-          </item>
-          <item>
            <widget class="QLabel" name="capeImage">
+            <property name="maximumSize">
+             <size>
+              <width>1</width>
+              <height>1</height>
+             </size>
+            </property>
             <property name="text">
              <string/>
-            </property>
-            <property name="scaledContents">
-             <bool>false</bool>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignmentFlag::AlignCenter</set>
             </property>
            </widget>
           </item>
          </layout>
         </widget>
        </item>
+       <item>
+        <widget class="QPushButton" name="resetBtn">
+         <property name="text">
+          <string>Reset Current Account Skin</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="applySkinBtn">
+         <property name="text">
+          <string>Apply Skin</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDialogButtonBox" name="buttonBox">
+         <property name="standardButtons">
+          <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="downloadBtn">
+         <property name="text">
+          <string>Download PNG</string>
+         </property>
+        </widget>
+       </item>
       </layout>
-     </item>
-     <item>
-      <widget class="QListView" name="listView">
-       <property name="contextMenuPolicy">
-        <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
-       </property>
-       <property name="acceptDrops">
-        <bool>false</bool>
-       </property>
-       <property name="horizontalScrollBarPolicy">
-        <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
-       </property>
-       <property name="verticalScrollMode">
-        <enum>QAbstractItemView::ScrollMode::ScrollPerPixel</enum>
-       </property>
-       <property name="movement">
-        <enum>QListView::Movement::Static</enum>
-       </property>
-       <property name="resizeMode">
-        <enum>QListView::ResizeMode::Adjust</enum>
-       </property>
-       <property name="spacing">
-        <number>5</number>
-       </property>
-       <property name="viewMode">
-        <enum>QListView::ViewMode::IconMode</enum>
-       </property>
-       <property name="modelColumn">
-        <number>0</number>
-       </property>
       </widget>
      </item>
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="buttonsHLayout" stretch="0,0,3,0,0,0,1">
-     <item>
-      <widget class="QPushButton" name="openDirBtn">
-       <property name="text">
-        <string>Open Folder</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="resetBtn">
-       <property name="text">
-        <string>Reset Skin</string>
-       </property>
-      </widget>
-     </item>
+    <layout class="QHBoxLayout" name="importToolsLayout">
+     <property name="spacing">
+      <number>8</number>
+     </property>
      <item>
       <widget class="QLineEdit" name="urlLine">
        <property name="placeholderText">
-        <string extracomment="URL or username"/>
+        <string>Paste a skin PNG URL or Minecraft username</string>
        </property>
       </widget>
      </item>
@@ -153,33 +506,56 @@
      <item>
       <widget class="QPushButton" name="userBtn">
        <property name="text">
-        <string>Import user</string>
+        <string>Import User</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="fileBtn">
+      <widget class="QPushButton" name="browseSkinsBtn">
+       <property name="toolTip">
+        <string>Look up a Minecraft username or UUID through your Vercel skin API and add the skin to your library.</string>
+       </property>
        <property name="text">
-        <string>Import File</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QDialogButtonBox" name="buttonBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="standardButtons">
-        <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
+        <string>Online Lookup</string>
        </property>
       </widget>
      </item>
     </layout>
    </item>
+   <item>
+    <layout class="QHBoxLayout" name="buttonsHLayout">
+     <item>
+      <widget class="QLabel" name="catalogStatusLabel">
+       <property name="text">
+      <string>Free skins · Preview before applying · Import your own PNG</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+       <layout class="QHBoxLayout" name="catalogPaginationLayout"/>
+      </item>
+      <item>
+       <spacer name="footerSpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
   </layout>
+   </widget>
+  </item>
+ </layout>
   <action name="action_Delete_Skin">
    <property name="text">
     <string>&amp;Delete Skin</string>

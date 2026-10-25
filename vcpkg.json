@@ -13,7 +13,6 @@
       "host": true,
       "platform": "windows"
     },
-
     "cmark",
     {
       "name": "libarchive",

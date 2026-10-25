@@ -25,5 +25,12 @@
         <!-- https://commons.wikimedia.org/wiki/File:Teawie_Party.png -->
         <file alias="teawie-spooky">teawie-spooky.png</file>
         <!-- https://commons.wikimedia.org/wiki/File:Teawie_Halloween.png -->
+        <file alias="boostclient-minecraft">boostclient-minecraft.webp</file>
+        <file alias="boostclient-hero">boostclient-hero.png</file>
+        <file alias="boostclient-sidebar-footer">boostclient-sidebar-footer.png</file>
+        <file alias="boostclient-instance-grass">boostclient-instance-grass.png</file>
+        <file alias="boostclient-mc-3">boostclient-mc-3.jpg</file>
+        <file alias="boostclient-mc3">boostclient-mc3.jpg</file>
+        <file alias="boostclient-grasss">boostclient-grasss.png</file>
     </qresource>
 </RCC>

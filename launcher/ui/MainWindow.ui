@@ -112,8 +112,8 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionRenameInstance"/>
-   <addaction name="separator"/>
    <addaction name="actionLaunchInstance"/>
+   <addaction name="actionLaunchOfflineCustom"/>
    <addaction name="actionKillInstance"/>
    <addaction name="separator"/>
    <addaction name="actionEditInstance"/>
@@ -143,6 +143,7 @@
     <addaction name="actionAddInstance"/>
     <addaction name="separator"/>
     <addaction name="actionLaunchInstance"/>
+    <addaction name="actionLaunchOfflineCustom"/>
     <addaction name="actionKillInstance"/>
     <addaction name="separator"/>
     <addaction name="actionEditInstance"/>
@@ -347,6 +348,17 @@
     <string>Launch the selected instance.</string>
    </property>
   </action>
+  <action name="actionLaunchOfflineCustom">
+   <property name="icon">
+    <iconset theme="launch"/>
+   </property>
+   <property name="text">
+    <string>Launch &amp;Offline</string>
+   </property>
+   <property name="toolTip">
+    <string>Launch the selected instance in offline mode.</string>
+   </property>
+  </action>
   <action name="actionKillInstance">
    <property name="icon">
     <iconset theme="status-bad"/>
@@ -463,7 +475,7 @@
     <iconset theme="launcher"/>
    </property>
    <property name="text">
-    <string>Prism Launcher (zip)</string>
+    <string>BoostClient instance (zip)</string>
    </property>
   </action>
   <action name="actionExportInstanceMrPack">
