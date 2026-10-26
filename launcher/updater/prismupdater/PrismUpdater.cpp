@@ -32,6 +32,7 @@
 #include <QCommandLineParser>
 #include <QDirListing>
 #include <QFileInfo>
+#include <QFileIconProvider>
 #include <QMessageBox>
 #include <QNetworkProxy>
 #include <QNetworkReply>
@@ -348,6 +349,15 @@ PrismUpdaterApp::PrismUpdaterApp(int& argc, char** argv) : QApplication(argc, ar
 
     m_allowPreRelease = parser.isSet("pre-release");
 
+    if (!m_checkOnly && !m_printOnly && !m_selectUI) {
+        m_updateProgressDialog = std::make_unique<ProgressDialog>();
+        const auto appIcon = QFileIconProvider().icon(QFileInfo(m_prismExecutable));
+        m_updateProgressDialog->setUpdateMode(BuildConfig.LAUNCHER_DISPLAYNAME, appIcon);
+        m_updateProgressDialog->setUpdateStatus(tr("Checking for your update..."));
+        m_updateProgressDialog->setUpdateProgress(0, 0);
+        m_updateProgressDialog->show();
+    }
+
     auto markerFilePath = QDir(m_rootPath).absoluteFilePath(".boostclient_updater_unpack.marker");
     auto markerFile = QFileInfo(markerFilePath);
     if (markerFile.exists()) {
@@ -505,6 +515,11 @@ void PrismUpdaterApp::moveAndFinishUpdate(const QDir& target)
 
     logUpdate("Waiting 2 seconds for resources to free");
     QThread::sleep(2);
+    if (m_updateProgressDialog) {
+        m_updateProgressDialog->setUpdateStatus(tr("Finishing your update..."));
+        m_updateProgressDialog->setUpdateProgress(0, 0);
+        m_updateProgressDialog->show();
+    }
 
     auto manifestPath = FS::PathCombine(m_rootPath, "manifest.txt");
     QFileInfo manifest(manifestPath);
@@ -538,11 +553,17 @@ void PrismUpdaterApp::moveAndFinishUpdate(const QDir& target)
 
     bool error = false;
 
-    QProgressDialog progress(tr("Installing from %1").arg(m_rootPath), "", 0, static_cast<int>(fileList.length()));
-    progress.setCancelButton(nullptr);
-    progress.setMinimumWidth(400);
-    progress.adjustSize();
-    progress.show();
+    QProgressDialog fallbackProgress(tr("Installing update..."), "", 0, static_cast<int>(fileList.length()));
+    fallbackProgress.setCancelButton(nullptr);
+    fallbackProgress.setMinimumWidth(400);
+    fallbackProgress.adjustSize();
+    if (m_updateProgressDialog) {
+        m_updateProgressDialog->setUpdateStatus(tr("Installing update..."));
+        m_updateProgressDialog->setUpdateProgress(0, fileList.length());
+        m_updateProgressDialog->show();
+    } else {
+        fallbackProgress.show();
+    }
     QCoreApplication::processEvents();
 
     logUpdate(tr("Installing from %1").arg(m_rootPath));
@@ -562,7 +583,11 @@ void PrismUpdaterApp::moveAndFinishUpdate(const QDir& target)
 
     int i = 0;
     for (const auto& glob : fileList) {
-        progress.setValue(i);
+        if (m_updateProgressDialog) {
+            m_updateProgressDialog->setUpdateProgress(i, fileList.length());
+        } else {
+            fallbackProgress.setValue(i);
+        }
         QCoreApplication::processEvents();
         QList<QString> matches;
         for (const auto& entry : QDirListing(m_rootPath, { glob }, QDirListing::IteratorFlag::ResolveSymlinks)) {
@@ -581,7 +606,12 @@ void PrismUpdaterApp::moveAndFinishUpdate(const QDir& target)
         }
         i++;
     }
-    progress.setValue(i);
+    if (m_updateProgressDialog) {
+        m_updateProgressDialog->setUpdateProgress(i, fileList.length());
+        m_updateProgressDialog->setUpdateStatus(tr("Starting %1...").arg(BuildConfig.LAUNCHER_DISPLAYNAME));
+    } else {
+        fallbackProgress.setValue(i);
+    }
     QCoreApplication::processEvents();
 
     if (error) {
@@ -792,12 +822,23 @@ QFileInfo PrismUpdaterApp::downloadAsset(const GitHubReleaseAsset& asset)
     qDebug() << "downloading" << fileUrl << "to" << outFilePath;
     auto download = Net::Request::makeFile(fileUrl, outFilePath);
     download->setNetwork(m_network.get());
-    auto progressDialog = ProgressDialog();
-    progressDialog.adjustSize();
-
-    progressDialog.execWithTask(download.get());
+    if (!m_updateProgressDialog) {
+        m_updateProgressDialog = std::make_unique<ProgressDialog>();
+        const auto appIcon = QFileIconProvider().icon(QFileInfo(m_prismExecutable));
+        m_updateProgressDialog->setUpdateMode(BuildConfig.LAUNCHER_DISPLAYNAME, appIcon);
+    }
+    m_updateProgressDialog->setUpdateStatus(tr("Downloading the latest version..."));
+    m_updateProgressDialog->setUpdateProgress(0, 0);
+    const auto result = m_updateProgressDialog->execWithTask(download.get());
 
     qDebug() << "download complete";
+
+    if (result != QDialog::Accepted) {
+        return {};
+    }
+    m_updateProgressDialog->setUpdateStatus(tr("Preparing the installation..."));
+    m_updateProgressDialog->setUpdateProgress(0, 0);
+    m_updateProgressDialog->show();
 
     QFileInfo outFile(outFilePath);
     return outFile;
@@ -895,6 +936,13 @@ bool writeLockFile(const QString& path,
 void PrismUpdaterApp::performInstall(const QFileInfo& file)
 {
     qDebug() << "starting install";
+    if (m_updateProgressDialog) {
+        m_updateProgressDialog->setUpdateStatus(tr("Installing your update..."));
+        m_updateProgressDialog->setUpdateProgress(0, 0);
+        m_updateProgressDialog->show();
+        QCoreApplication::processEvents();
+    }
+
     auto updateLockPath = FS::PathCombine(m_dataPath, ".boostclient_update.lock");
     QFileInfo updateLock(updateLockPath);
     if (updateLock.exists()) {
@@ -1061,11 +1109,17 @@ void PrismUpdaterApp::backupAppDir()
         qFatal("Failed to write backup marker: %s", res.error().toUtf8().constData());
     }
 
-    QProgressDialog progress(tr("Backing up install at %1").arg(m_rootPath), "", 0, static_cast<int>(fileList.length()));
-    progress.setCancelButton(nullptr);
-    progress.setMinimumWidth(400);
-    progress.adjustSize();
-    progress.show();
+    QProgressDialog fallbackProgress(tr("Preparing update..."), "", 0, static_cast<int>(fileList.length()));
+    fallbackProgress.setCancelButton(nullptr);
+    fallbackProgress.setMinimumWidth(400);
+    fallbackProgress.adjustSize();
+    if (m_updateProgressDialog) {
+        m_updateProgressDialog->setUpdateStatus(tr("Preparing your launcher..."));
+        m_updateProgressDialog->setUpdateProgress(0, fileList.length());
+        m_updateProgressDialog->show();
+    } else {
+        fallbackProgress.show();
+    }
     QCoreApplication::processEvents();
 
     logUpdate(tr("Backing up install at %1").arg(m_rootPath));
@@ -1087,7 +1141,11 @@ void PrismUpdaterApp::backupAppDir()
 
     int i = 0;
     for (const auto& glob : fileList) {
-        progress.setValue(i);
+        if (m_updateProgressDialog) {
+            m_updateProgressDialog->setUpdateProgress(i, fileList.length());
+        } else {
+            fallbackProgress.setValue(i);
+        }
         QCoreApplication::processEvents();
         QList<QString> matches;
         for (const auto& entry : QDirListing(appDir.absolutePath(), { glob }, QDirListing::IteratorFlag::ResolveSymlinks)) {
@@ -1106,7 +1164,11 @@ void PrismUpdaterApp::backupAppDir()
         }
         i++;
     }
-    progress.setValue(i);
+    if (m_updateProgressDialog) {
+        m_updateProgressDialog->setUpdateProgress(i, fileList.length());
+    } else {
+        fallbackProgress.setValue(i);
+    }
     QCoreApplication::processEvents();
 }
 

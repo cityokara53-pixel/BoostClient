@@ -98,6 +98,8 @@
 #include <QLibraryInfo>
 #include <QList>
 #include <QNetworkAccessManager>
+#include <QSettings>
+#include <QStandardPaths>
 #include <QStringList>
 #include <QStringLiteral>
 #include <QStyleFactory>
@@ -302,6 +304,53 @@ std::tuple<QDateTime, QString, QString, QString, QString> readLockFile(const QSt
     return std::make_tuple(timestamp, from, to, target, dataPath);
 }
 }  // namespace
+
+#ifdef Q_OS_WIN
+namespace {
+void ensureWindowsLauncherEntries()
+{
+    const auto executable = QCoreApplication::applicationFilePath();
+    const auto applicationName = BuildConfig.LAUNCHER_DISPLAYNAME;
+    const auto icon = executable;
+
+    const auto startMenuPath = QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);
+    if (!startMenuPath.isEmpty()) {
+        if (!FS::ensureFolderPathExists(startMenuPath)) {
+            qWarning() << "Failed to create the Start Menu programs folder:" << startMenuPath;
+        } else {
+            const auto shortcutPath = QDir(startMenuPath).filePath(applicationName);
+            if (!QFileInfo::exists(shortcutPath + ".lnk")) {
+                FS::createShortcut(shortcutPath, executable, {}, applicationName, icon);
+            }
+        }
+    } else {
+        qWarning() << "Could not determine the Start Menu programs folder";
+    }
+
+    const auto desktopPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+    if (!desktopPath.isEmpty()) {
+        if (!FS::ensureFolderPathExists(desktopPath)) {
+            qWarning() << "Failed to create the Desktop folder:" << desktopPath;
+        } else {
+            const auto shortcutPath = QDir(desktopPath).filePath(applicationName);
+            if (!QFileInfo::exists(shortcutPath + ".lnk")) {
+                FS::createShortcut(shortcutPath, executable, {}, applicationName, icon);
+            }
+        }
+    } else {
+        qWarning() << "Could not determine the Desktop folder";
+    }
+
+    QSettings startupEntries(QStringLiteral("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run"),
+                             QSettings::NativeFormat);
+    startupEntries.setValue(applicationName, QDir::toNativeSeparators(QStringLiteral("\"%1\"").arg(executable)));
+    startupEntries.sync();
+    if (startupEntries.status() != QSettings::NoError) {
+        qWarning() << "Failed to register launcher in Windows Startup Apps";
+    }
+}
+}  // namespace
+#endif
 
 Application::Application(int& argc, char** argv) : QApplication(argc, argv)
 {
@@ -593,6 +642,10 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
 
         qInfo() << "<> Log initialized.";
     }
+
+#ifdef Q_OS_WIN
+    ensureWindowsLauncherEntries();
+#endif
 
     {
         auto migrated = handleDataMigration(

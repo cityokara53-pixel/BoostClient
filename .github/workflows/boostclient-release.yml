@@ -9,15 +9,12 @@ permissions: {}
 
 jobs:
   windows-release:
-    name: Windows installer and updater
+    name: Windows app package
     runs-on: windows-2022
     permissions:
       contents: write
-      id-token: write
-      packages: write
 
     env:
-      ARTIFACT_NAME: Windows-MSVC-Qt6
       BUILD_PLATFORM: Windows-MSVC
       BUILD_TYPE: Release
       CMAKE_PRESET: windows_msvc
@@ -73,44 +70,29 @@ jobs:
         shell: pwsh
         run: ctest --test-dir build --build-config Release --output-on-failure --exclude-regex "^FileSystem$"
 
-      - name: Package installer
-        uses: ./.github/actions/package/windows
-        env:
-          CI_HAS_ACCESS_TO_AZURE: ${{ vars.CI_HAS_ACCESS_TO_AZURE || '' }}
-        with:
-          version: ${{ steps.version.outputs.version }}
-          build-type: Release
-          artifact-name: Windows-MSVC-Qt6
-          msystem: ""
-          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Download installer artifact
-        uses: actions/download-artifact@v8
-        with:
-          name: BoostClient-Windows-MSVC-Qt6-Setup-${{ steps.version.outputs.version }}-Release
-          path: release
-
-      - name: Prepare release assets
-        id: assets
+      - name: Package app ZIP
         shell: pwsh
+        env:
+          BUILD_DIR: build
+          INSTALL_DIR: install
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          $versionedInstaller = "BoostClient-Windows-MSVC-Setup-${{ steps.version.outputs.version }}.exe"
-          $latestInstaller = "BoostClient-Setup.exe"
-          Move-Item "release\$latestInstaller" "release\$versionedInstaller"
-          Copy-Item "release\$versionedInstaller" "release\$latestInstaller"
-          $hash = (Get-FileHash "release\$versionedInstaller" -Algorithm SHA256).Hash.ToLowerInvariant()
-          "$hash  $versionedInstaller" | Set-Content "release\SHA256SUMS.txt" -Encoding ascii
-          "$hash  $latestInstaller" | Add-Content "release\SHA256SUMS.txt" -Encoding ascii
+          $archive = "release\BoostClient-Windows-MSVC-App-$env:VERSION.zip"
+          New-Item release -ItemType Directory -Force | Out-Null
+          cmake --install $env:BUILD_DIR --config Release --prefix $env:INSTALL_DIR
+          if (-not (Test-Path "$env:INSTALL_DIR\boostclient.exe")) {
+            throw "boostclient.exe missing from app package"
+          }
+          Compress-Archive -Path "$env:INSTALL_DIR\*" -DestinationPath $archive -CompressionLevel Optimal -Force
+          $hash = (Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $(Split-Path $archive -Leaf)" | Set-Content "release\SHA256SUMS.txt" -Encoding ascii
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.ref_name }}
-          name: BoostClient ${{ github.ref_name }}
+          name: OG Client ${{ github.ref_name }}
           generate_release_notes: true
           files: |
-            release/BoostClient-Windows-MSVC-Setup-${{ steps.version.outputs.version }}.exe
-            release/BoostClient-Setup.exe
+            release/BoostClient-Windows-MSVC-App-${{ steps.version.outputs.version }}.zip
             release/SHA256SUMS.txt

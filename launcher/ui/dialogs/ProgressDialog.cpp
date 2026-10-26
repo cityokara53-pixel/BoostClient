@@ -38,7 +38,11 @@
 #include "ui_ProgressDialog.h"
 
 #include <QDebug>
+#include <QGuiApplication>
 #include <QKeyEvent>
+#include <QLabel>
+#include <QProgressBar>
+#include <QScreen>
 #include <limits>
 
 #include "tasks/Task.h"
@@ -66,12 +70,57 @@ std::tuple<int, int> map_int_zero_max(T current, T range_max, T range_min)
 ProgressDialog::ProgressDialog(QWidget* parent) : QDialog(parent), ui(new Ui::ProgressDialog)
 {
     ui->setupUi(this);
+    ui->updateBrandWidget->hide();
     ui->taskProgressScrollArea->setHidden(true);
     this->setWindowFlags(this->windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setAttribute(Qt::WidgetAttribute::WA_QuitOnClose, true);
     changeProgress(0, 100);
     updateSize(true);
     hideSkipButton();
+}
+
+void ProgressDialog::setUpdateMode(const QString& applicationName, const QIcon& applicationIcon)
+{
+    m_updateMode = true;
+    setWindowTitle(tr("Updating %1").arg(applicationName));
+    setWindowIcon(applicationIcon);
+    ui->updateBrandLogo->setPixmap(applicationIcon.pixmap(64, 64));
+    ui->updateBrandTitle->setText(applicationName);
+    ui->updateBrandSubtitle->setText(tr("A fresh update is on its way"));
+    ui->updateBrandWidget->show();
+    ui->globalStatusDetailsLabel->hide();
+    ui->taskProgressScrollArea->hide();
+    setWindowFlag(Qt::WindowCloseButtonHint, false);
+    setStyleSheet(QStringLiteral(
+        "QDialog#ProgressDialog { background-color: #101827; color: #edf5ff; }"
+        "QLabel { color: #edf5ff; }"
+        "QLabel#updateBrandTitle { font-size: 23px; font-weight: 700; }"
+        "QLabel#updateBrandSubtitle, QLabel#globalStatusLabel { color: #aab9cb; font-size: 13px; }"
+        "QProgressBar { border: 0; border-radius: 7px; background: #263247; min-height: 14px; max-height: 14px; }"
+        "QProgressBar::chunk { border-radius: 7px; background: #54e6c0; }"));
+    setUpdateStatus(tr("Getting your launcher ready..."));
+    updateSize(true);
+    if (auto* screen = QGuiApplication::primaryScreen()) {
+        move(screen->availableGeometry().center() - rect().center());
+    }
+}
+
+void ProgressDialog::setUpdateStatus(const QString& status)
+{
+    ui->globalStatusLabel->setText(status);
+    ui->globalStatusLabel->adjustSize();
+}
+
+void ProgressDialog::setUpdateProgress(qint64 current, qint64 total)
+{
+    if (total <= 0) {
+        ui->globalProgressBar->setRange(0, 0);
+        return;
+    }
+
+    const auto [mappedCurrent, mappedTotal] = map_int_zero_max<qint64>(current, total, 0);
+    ui->globalProgressBar->setRange(0, mappedTotal);
+    ui->globalProgressBar->setValue(mappedCurrent);
 }
 
 void ProgressDialog::hideSkipButton()
@@ -226,6 +275,10 @@ void ProgressDialog::onTaskSucceeded()
 
 void ProgressDialog::changeStatus([[maybe_unused]] const QString& status)
 {
+    if (m_updateMode) {
+        return;
+    }
+
     ui->globalStatusLabel->setText(m_task->getStatus());
     ui->globalStatusLabel->adjustSize();
     ui->globalStatusDetailsLabel->setText(m_task->getDetails());
@@ -268,8 +321,12 @@ void ProgressDialog::changeStepProgress(const TaskStepProgress& task_progress)
 
 void ProgressDialog::changeProgress(qint64 current, qint64 total)
 {
-    ui->globalProgressBar->setMaximum(total);
-    ui->globalProgressBar->setValue(current);
+    if (m_updateMode) {
+        setUpdateProgress(current, total);
+    } else {
+        ui->globalProgressBar->setMaximum(total);
+        ui->globalProgressBar->setValue(current);
+    }
 }
 
 void ProgressDialog::keyPressEvent(QKeyEvent* e)
@@ -291,7 +348,7 @@ void ProgressDialog::keyPressEvent(QKeyEvent* e)
 
 void ProgressDialog::closeEvent(QCloseEvent* e)
 {
-    if (m_task && m_task->isRunning()) {
+    if (m_updateMode || (m_task && m_task->isRunning())) {
         e->ignore();
     } else {
         QDialog::closeEvent(e);

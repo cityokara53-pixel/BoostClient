@@ -12,6 +12,15 @@ Java configuration, mod loaders, and modpack import. The Windows Release
 executable and its command-line startup have been verified; the existing
 FileSystem test remains a known failure.
 
+## Windows app-only releases
+
+Windows app-only releases are ZIP packages, not installers. Extract the ZIP to
+a permanent folder and run `boostclient.exe`; on first launch, the app creates
+Desktop and Start Menu shortcuts and registers itself in Startup Apps. The ZIP
+does not contain account or instance data. It is not accepted by the automatic
+updater for non-portable installs, so close the app and manually replace its
+files when applying a later app-only release.
+
 ## Get the source
 
 This project preserves Prism Launcher's upstream Git history. Fetch the pinned
