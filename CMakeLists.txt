@@ -516,6 +516,36 @@ elseif(WIN32)
     set(PLUGIN_DEST_DIR ".")
     set(RESOURCES_DEST_DIR ".")
     set(JARS_DEST_DIR "jars")
+
+    if(MSVC)
+        set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP TRUE)
+        include(InstallRequiredSystemLibraries)
+
+        set(_launcher_required_msvc_runtime_dll_names
+            msvcp140.dll
+            msvcp140_1.dll
+            msvcp140_2.dll
+            vcruntime140.dll
+            vcruntime140_1.dll
+        )
+        set(_launcher_msvc_runtime_dlls "")
+        foreach(_required_dll IN LISTS _launcher_required_msvc_runtime_dll_names)
+            set(_runtime_dll_found FALSE)
+            foreach(_runtime_dll IN LISTS CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
+                get_filename_component(_runtime_dll_name "${_runtime_dll}" NAME)
+                if(_runtime_dll_name STREQUAL "${_required_dll}")
+                    list(APPEND _launcher_msvc_runtime_dlls "${_runtime_dll}")
+                    set(_runtime_dll_found TRUE)
+                    break()
+                endif()
+            endforeach()
+            if(NOT _runtime_dll_found)
+                message(FATAL_ERROR "The MSVC redistributable is missing required runtime DLL ${_required_dll}")
+            endif()
+        endforeach()
+
+        install(FILES ${_launcher_msvc_runtime_dlls} DESTINATION "." COMPONENT Runtime)
+    endif()
 else()
     message(FATAL_ERROR "Platform not supported")
 endif()

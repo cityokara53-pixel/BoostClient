@@ -83,6 +83,25 @@ For a portable install, use:
 cmake --install build --config Debug --component portable
 ```
 
+### Windows Visual C++ runtime
+
+Windows MSVC builds keep the dynamic `/MD` runtime and install the five
+Microsoft VC143 redistributable DLLs imported by the packaged launcher, Qt
+libraries, and helper executables directly beside the application:
+`msvcp140.dll`, `msvcp140_1.dll`, `msvcp140_2.dll`, `vcruntime140.dll`, and
+`vcruntime140_1.dll`. CMake sources them from the Visual Studio redistributable
+directory and fails configuration if any required file is missing. Together,
+these x64 DLLs add about 1 MiB. The Windows installer includes them with the
+launcher and no longer downloads or installs the separate Visual C++
+Redistributable.
+
+The launcher source and packaged native imports do not reference WebView2, and
+the WebView2 Runtime is not bundled. Windows system libraries and the Universal
+C Runtime supplied by supported Windows versions remain operating-system
+requirements. Minecraft still needs a compatible Java runtime; BoostClient can
+manage Java installations, and network access is needed for game metadata,
+accounts, and downloads.
+
 Do not reuse a build directory configured with Prism Launcher's previous
 identity or API settings; configure a fresh build directory after changing
 CMake options.
@@ -109,15 +128,20 @@ CMake options.
 - The CurseForge key and Imgur client ID are also empty. Those integrations
   require credentials that BoostClient is authorized to use.
 - Windows releases use this project's own GitHub Releases feed, not Prism
-  Launcher's updater feed. The built-in BoostClient updater checks for a stable
-  release at startup and asks before opening the Windows installer. A public
-  repository and at least one published release are required for anonymous
-  update checks and downloads.
+  Launcher's updater feed. Automatic update checks are enabled by default and
+  install stable releases without an update confirmation; Windows setup runs
+  silently using the existing per-user install location. Manual update checks
+  remain available. A public repository and at least one published release are
+  required for anonymous update checks and downloads.
+- Download the latest stable Windows installer from
+  https://github.com/cityokara53-pixel/BoostClient/releases/latest/download/BoostClient-Setup.exe.
+  Each release also keeps a versioned installer and publishes checksums for both
+  download names, so this link always resolves to the latest stable release.
 - Pushing a `MAJOR.MINOR.PATCH` tag runs
   `.github/workflows/boostclient-release.yml`. It builds the matching versioned
   Windows installer with the updater enabled, runs tests other than the known
-  interactive `FileSystem` test, and publishes a SHA-256 checksum alongside
-  the installer.
+  interactive `FileSystem` test, and publishes both the versioned installer and
+  the stable `BoostClient-Setup.exe` download alongside their SHA-256 checksums.
 - Prism-specific news, bug-tracker, community, and translation links are
   disabled. The upstream metadata endpoint remains configured because the
   launcher uses it for version and loader metadata; replace it with a compatible

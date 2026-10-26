@@ -325,6 +325,12 @@ void PrismExternalUpdater::offerUpdate(const QString& versionName,
         return;
     }
 
+    if (!triggeredByUser) {
+        qInfo() << "Automatically installing update" << versionTag;
+        performUpdate(versionTag);
+        return;
+    }
+
     UpdateAvailableDialog dlg(BuildConfig.printableVersionString(), versionName, releaseNotes);
 
     auto result = dlg.exec();

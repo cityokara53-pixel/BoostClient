@@ -96,10 +96,13 @@ jobs:
         id: assets
         shell: pwsh
         run: |
-          $installer = "BoostClient-Windows-MSVC-Setup-${{ steps.version.outputs.version }}.exe"
-          Move-Item "release\BoostClient-Setup.exe" "release\$installer"
-          $hash = (Get-FileHash "release\$installer" -Algorithm SHA256).Hash.ToLowerInvariant()
-          "$hash  $installer" | Set-Content "release\SHA256SUMS.txt" -Encoding ascii
+          $versionedInstaller = "BoostClient-Windows-MSVC-Setup-${{ steps.version.outputs.version }}.exe"
+          $latestInstaller = "BoostClient-Setup.exe"
+          Move-Item "release\$latestInstaller" "release\$versionedInstaller"
+          Copy-Item "release\$versionedInstaller" "release\$latestInstaller"
+          $hash = (Get-FileHash "release\$versionedInstaller" -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $versionedInstaller" | Set-Content "release\SHA256SUMS.txt" -Encoding ascii
+          "$hash  $latestInstaller" | Add-Content "release\SHA256SUMS.txt" -Encoding ascii
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v3
@@ -109,4 +112,5 @@ jobs:
           generate_release_notes: true
           files: |
             release/BoostClient-Windows-MSVC-Setup-${{ steps.version.outputs.version }}.exe
+            release/BoostClient-Setup.exe
             release/SHA256SUMS.txt

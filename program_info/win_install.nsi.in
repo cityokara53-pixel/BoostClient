@@ -349,22 +349,6 @@ Section "" UninstallPrevious
 
 SectionEnd
 
-;------------------------------------
-; include nice plugins
-
-; NScurl - curl in NSIS
-; used for MSVS redist download
-; extract to ../NSISPlugins/NScurl
-; https://github.com/negrutiu/nsis-nscurl/releases/latest/download/NScurl.zip
-!insertmacro CompileTimeIfFileExist "../NSISPlugins/NScurl/Plugins/" haveNScurl
-!ifdef haveNScurl
-!AddPluginDir /x86-unicode     "../NSISPlugins/NScurl/Plugins/x86-unicode"
-!AddPluginDir /x86-ansi        "../NSISPlugins/NScurl/Plugins/x86-ansi"
-!AddPluginDir /amd64-unicode   "../NSISPlugins/NScurl/Plugins/amd64-unicode"
-!endif
-
-;------------------------------------
-
 ; The stuff to install
 Section "@Launcher_DisplayName@"
 
@@ -429,8 +413,6 @@ Section "@Launcher_DisplayName@"
   ${EndIf}
 
 SectionEnd
-
-@Launcher_MSVC_Redist_NSIS_Section@
 
 Section "Start Menu Shortcut" SM_SHORTCUTS
 

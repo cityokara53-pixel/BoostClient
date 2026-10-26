@@ -132,19 +132,7 @@ runs:
       env:
         BUILD_DIR: build
         INSTALL_DIR: install
-
-        NSCURL_VERSION: "v24.9.26.122"
-        NSCURL_SHA256: "AEE6C4BE3CB6455858E9C1EE4B3AFE0DB9960FA03FE99CCDEDC28390D57CCBB0"
       run: |
-        New-Item -Name NSISPlugins -ItemType Directory
-        Invoke-Webrequest https://github.com/negrutiu/nsis-nscurl/releases/download/"${{ env.NSCURL_VERSION }}"/NScurl.zip -OutFile NSISPlugins\NScurl.zip
-        $nscurl_hash = Get-FileHash NSISPlugins\NScurl.zip -Algorithm Sha256 | Select-Object -ExpandProperty Hash
-        if ( $nscurl_hash -ne "${{ env.nscurl_sha256 }}") {
-          echo "::error:: NSCurl.zip sha256 mismatch"
-          exit 1
-        }
-        Expand-Archive -Path NSISPlugins\NScurl.zip -DestinationPath NSISPlugins\NScurl
-
         cd ${{ env.INSTALL_DIR }}
         makensis -NOCD "${{ github.workspace }}/${{ env.BUILD_DIR }}/program_info/win_install.nsi"
 

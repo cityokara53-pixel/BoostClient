@@ -955,6 +955,7 @@ void PrismUpdaterApp::performInstall(const QFileInfo& file)
         auto env = QProcessEnvironment::systemEnvironment();
         env.insert("__COMPAT_LAYER", "RUNASINVOKER");
         proc.setProcessEnvironment(env);
+        proc.setArguments({ "/S" });
 #endif
         proc.setProgram(file.absoluteFilePath());
         bool result = proc.startDetached();
