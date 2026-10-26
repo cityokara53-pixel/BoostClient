@@ -475,7 +475,7 @@
     <iconset theme="launcher"/>
    </property>
    <property name="text">
-    <string>BoostClient instance (zip)</string>
+    <string>OG Client instance (zip)</string>
    </property>
   </action>
   <action name="actionExportInstanceMrPack">

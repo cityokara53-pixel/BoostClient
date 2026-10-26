@@ -104,7 +104,7 @@
         <item>
          <widget class="QLabel" name="brandNameLabel">
           <property name="text">
-           <string>BoostClient</string>
+           <string>OG Client</string>
           </property>
          </widget>
         </item>
@@ -202,7 +202,7 @@
       <item>
        <widget class="QLabel" name="brandFooterLabel">
         <property name="text">
-        <string>BoostClient</string>
+        <string>OG Client</string>
         </property>
        </widget>
       </item>

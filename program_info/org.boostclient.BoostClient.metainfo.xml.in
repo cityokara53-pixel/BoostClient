@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
   <id>@Launcher_AppID@</id>
-  <name>BoostClient</name>
+  <name>@Launcher_DisplayName@</name>
   <summary>A customizable Minecraft launcher for managing separate game instances</summary>
   <developer id="org.boostclient">
-    <name>BoostClient contributors</name>
+    <name>OG Client contributors</name>
   </developer>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-only</project_license>
   <description>
-    <p>BoostClient is an independent, modified launcher based on Prism Launcher. It is not affiliated with or endorsed by Prism Launcher.</p>
+    <p>OG Client is an independent, modified launcher based on Prism Launcher. It is not affiliated with or endorsed by Prism Launcher.</p>
     <p>It helps players manage separate Minecraft installations, Java settings, loaders, and modpacks.</p>
   </description>
   <releases>

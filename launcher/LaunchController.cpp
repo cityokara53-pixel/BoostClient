@@ -152,6 +152,10 @@ LaunchDecision LaunchController::decideLaunchMode()
     }
 
     if (!accountToCheck) {
+        if (m_accountToUse->accountType() == AccountType::Offline) {
+            m_actualLaunchMode = LaunchMode::Offline;
+            return LaunchDecision::Continue;
+        }
         m_actualLaunchMode = LaunchMode::Demo;
         return LaunchDecision::Continue;
     }

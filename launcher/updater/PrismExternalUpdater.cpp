@@ -373,6 +373,9 @@ void PrismExternalUpdater::performUpdate(const QString& versionTag) const
     auto result = proc.startDetached();
     if (!result) {
         qDebug() << "Failed to start updater:" << proc.error() << proc.errorString();
+        QMessageBox::warning(priv->parent, tr("Update Failed"),
+                             tr("BoostClient couldn't start its updater.\nReason: %1").arg(proc.errorString()));
+        return;
     }
     QCoreApplication::exit();
 }
