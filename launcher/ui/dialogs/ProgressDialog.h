@@ -37,7 +37,6 @@
 
 #include <QDialog>
 #include <QHash>
-#include <QIcon>
 #include <QUuid>
 #include <memory>
 
@@ -59,10 +58,6 @@ class ProgressDialog : public QDialog {
    public:
     explicit ProgressDialog(QWidget* parent = 0);
     ~ProgressDialog();
-
-    void setUpdateMode(const QString& applicationName, const QIcon& applicationIcon);
-    void setUpdateStatus(const QString& status);
-    void setUpdateProgress(qint64 current, qint64 total);
 
     void updateSize(bool recenterParent = false);
 
@@ -104,6 +99,5 @@ class ProgressDialog : public QDialog {
     QList<QMetaObject::Connection> m_taskConnections;
 
     bool m_is_multi_step = false;
-    bool m_updateMode = false;
     QHash<QUuid, SubTaskProgressBar*> taskProgress;
 };

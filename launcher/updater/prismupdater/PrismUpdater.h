@@ -45,8 +45,6 @@
 
 #include "GitHubRelease.h"
 
-class ProgressDialog;
-
 class PrismUpdaterApp : public QApplication {
     Q_OBJECT
    public:
@@ -130,7 +128,6 @@ class PrismUpdaterApp : public QApplication {
 
     Status m_status = Status::Starting;
     std::unique_ptr<QNetworkAccessManager> m_network;
-    std::unique_ptr<ProgressDialog> m_updateProgressDialog;
     QString m_currentUrl;
     Task::Ptr m_currentTask;
     QList<GitHubRelease> m_releases;

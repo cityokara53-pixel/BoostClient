@@ -28,59 +28,7 @@
   <property name="sizeGripEnabled">
    <bool>true</bool>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0">
-   <item>
-    <widget class="QWidget" name="updateBrandWidget">
-     <layout class="QHBoxLayout" name="updateBrandLayout">
-      <property name="spacing">
-       <number>16</number>
-      </property>
-      <item>
-       <widget class="QLabel" name="updateBrandLogo">
-        <property name="minimumSize">
-         <size>
-          <width>72</width>
-          <height>72</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>72</width>
-          <height>72</height>
-         </size>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QVBoxLayout" name="updateBrandTextLayout">
-        <item>
-         <widget class="QLabel" name="updateBrandTitle">
-          <property name="text">
-           <string>OG Client</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="updateBrandSubtitle">
-          <property name="text">
-           <string>Getting your launcher ready</string>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0">
      <item>
