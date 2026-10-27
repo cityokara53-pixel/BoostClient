@@ -25,15 +25,6 @@ jobs:
         with:
           submodules: "true"
 
-      - name: Require public release repository token
-        shell: pwsh
-        env:
-          RELEASES_TOKEN: ${{ secrets.RELEASES_TOKEN }}
-        run: |
-          if (-not $env:RELEASES_TOKEN) {
-            throw "Add the fine-grained RELEASES_TOKEN secret with Contents: Read and write access to OGClient-Releases."
-          }
-
       - name: Set up build dependencies
         uses: ./.github/actions/setup-dependencies
         with:
@@ -90,6 +81,15 @@ jobs:
           Compress-Archive -Path "$env:INSTALL_DIR\*" -DestinationPath $archive -CompressionLevel Optimal -Force
           $hash = (Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
           "$hash  $(Split-Path $archive -Leaf)" | Set-Content "release\SHA256SUMS.txt" -Encoding ascii
+
+      - name: Require public release repository token
+        shell: pwsh
+        env:
+          RELEASES_TOKEN: ${{ secrets.RELEASES_TOKEN }}
+        run: |
+          if (-not $env:RELEASES_TOKEN) {
+            throw "Add the fine-grained RELEASES_TOKEN secret with Contents: Read and write access to OGClient-Releases."
+          }
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v3
