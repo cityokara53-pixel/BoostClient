@@ -320,6 +320,10 @@ QPixmap navigationGlyph(const QString& name, const QColor& color)
 
 QIcon navigationIcon(const QString& name)
 {
+    if (name == QStringLiteral("minecraft")) {
+        return QIcon(QStringLiteral(":/icons/pe_colored/scalable/minecraft.svg"));
+    }
+
     const QColor normalColor = QColor("#E7E7E8");
     const QColor selectedColor = QColor("#F28A1D");
     QIcon icon;
@@ -865,9 +869,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
             border-color: rgba(87, 232, 255, 0.6);
         }
         QWidget#boostTopBar {
-            background: rgba(10, 10, 10, 224);
+            background: transparent;
             border: 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 18);
         }
         QToolButton#boostWindowMinimize, QToolButton#boostWindowMaximize, QToolButton#boostWindowClose {
             background: transparent;
@@ -1274,7 +1277,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
             color: #F3FCFF;
         }
         QToolButton#boostNavButton:checked:hover { border-color: rgba(87, 232, 255, 0.6); }
-        QWidget#boostTopBar { background: #0B1220; }
+        QWidget#boostTopBar { background: transparent; }
         QPushButton#boostAccountMenuButton {
             background: #121D2F;
             border-color: #2B3B55;
@@ -1507,11 +1510,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
             border: 1px solid transparent;
             border-left: 3px solid transparent;
             border-radius: 8px;
-            min-height: 38px;
+            min-height: 54px;
             padding: 4px 7px;
-            font-size: 8pt;
+            font-size: 9pt;
             font-weight: 600;
-            text-align: left;
+            text-align: center;
         }
         QToolButton#boostNavButton:hover {
             background: #232426;
@@ -1532,11 +1535,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
             color: #E7E7E8;
             border: 1px solid transparent;
             border-radius: 8px;
-            min-height: 38px;
+            min-height: 54px;
             padding: 4px 9px;
-            font-size: 8pt;
+            font-size: 9pt;
             font-weight: 600;
-            text-align: left;
+            text-align: center;
         }
         QToolButton#boostSidebarSettings:hover {
             background: #232426;
@@ -1544,9 +1547,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
             border-color: #303133;
         }
         QWidget#boostTopBar {
-            background: rgba(10, 10, 10, 224);
+            background: transparent;
             border: 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 18);
         }
         QToolButton#boostWindowMinimize, QToolButton#boostWindowMaximize, QToolButton#boostWindowClose {
             color: #B8B8B8;
@@ -1882,10 +1884,10 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
                                                                     const QString& iconName) {
         auto* button = new QToolButton(navigationWidget);
         button->setObjectName(QStringLiteral("boostNavButton"));
-        button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+        button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
         button->setText(text);
         button->setIcon(navigationIcon(iconName));
-        button->setIconSize(QSize(18, 18));
+        button->setIconSize(QSize(20, 20));
         button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         button->setCheckable(true);
         button->setAccessibleName(accessibleName);
@@ -1913,10 +1915,10 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     auto* settingsButton = new QToolButton(sidebar);
     settingsButton->setObjectName(QStringLiteral("boostSidebarSettings"));
-    settingsButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    settingsButton->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     settingsButton->setText(tr("Settings"));
     settingsButton->setIcon(navigationIcon(QStringLiteral("settings")));
-    settingsButton->setIconSize(QSize(18, 18));
+    settingsButton->setIconSize(QSize(20, 20));
     settingsButton->setAccessibleName(tr("Launcher settings"));
     settingsButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     sidebarLayout->addWidget(settingsButton);
@@ -1932,7 +1934,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
     sidebarGrassImage->setObjectName(QStringLiteral("boostSidebarGrassImage"));
     sidebarGrassImage->setAlignment(Qt::AlignBottom | Qt::AlignHCenter);
     sidebarGrassImage->setContentsMargins(8, 0, 0, 0);
-    sidebarGrassImage->setPixmap(QPixmap(QStringLiteral(":/backgrounds/boostclient-instance-grass"))
+    sidebarGrassImage->setPixmap(QPixmap(QStringLiteral(":/backgrounds/boostclient-sidebar-mascot"))
                                      .scaled(QSize(168, 175), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     sidebarArtworkLayout->addWidget(sidebarGrassImage);
     auto* sidebarArtworkOverlay = new QWidget(sidebarArtwork);
@@ -2015,12 +2017,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         hero->setBackgroundPixmap(std::move(wallpaper));
     }
     auto* heroLayout = new QGridLayout(hero);
-    heroLayout->setContentsMargins(24, 45, 22, 12);
-    heroLayout->setHorizontalSpacing(14);
-    heroLayout->setVerticalSpacing(4);
+    heroLayout->setContentsMargins(24, 20, 22, 18);
+    heroLayout->setHorizontalSpacing(16);
+    heroLayout->setVerticalSpacing(8);
     heroLayout->setColumnStretch(0, 7);
     heroLayout->setColumnStretch(1, 5);
-    heroLayout->setColumnStretch(2, 4);
     auto* greetingRow = new QHBoxLayout();
     greetingRow->setContentsMargins(0, 0, 0, 0);
     greetingRow->setSpacing(11);
@@ -2045,7 +2046,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
     selectedLabel->setObjectName(QStringLiteral("boostKicker"));
     m_homeInstanceSelector = new QComboBox(hero);
     m_homeInstanceSelector->setObjectName(QStringLiteral("boostBuildSelector"));
-    m_homeInstanceSelector->setMinimumWidth(205);
+    m_homeInstanceSelector->setMinimumWidth(170);
     m_homeInstanceSelector->setIconSize({ 24, 24 });
     m_homeInstanceSelector->setAccessibleName(tr("Select a Minecraft installation"));
     auto* profileField = new QVBoxLayout();
@@ -2076,7 +2077,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
     titleCopy->addWidget(editionTitle);
     titleCopy->addWidget(tagline);
     identityLayout->addLayout(titleCopy);
-    heroLayout->addWidget(identity, 1, 0, 1, 2, Qt::AlignLeft | Qt::AlignVCenter);
+    heroLayout->addWidget(identity, 1, 0, 1, 1, Qt::AlignLeft | Qt::AlignVCenter);
 
     auto* buildSelectors = new QHBoxLayout();
     buildSelectors->setSpacing(8);
@@ -2088,7 +2089,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
     versionField->addWidget(versionLabel);
     m_homeVersionSelector = new QComboBox(hero);
     m_homeVersionSelector->setObjectName(QStringLiteral("boostBuildSelector"));
-    m_homeVersionSelector->setMinimumWidth(170);
+    m_homeVersionSelector->setMinimumWidth(140);
     m_homeVersionSelector->setIconSize({ 24, 24 });
     m_homeVersionSelector->setAccessibleName(tr("Select an installed Minecraft version"));
     versionField->addWidget(m_homeVersionSelector);
@@ -2100,13 +2101,13 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
     loaderField->addWidget(loaderLabel);
     m_homeLoaderSelector = new QComboBox(hero);
     m_homeLoaderSelector->setObjectName(QStringLiteral("boostBuildSelector"));
-    m_homeLoaderSelector->setMinimumWidth(170);
+    m_homeLoaderSelector->setMinimumWidth(130);
     m_homeLoaderSelector->setIconSize({ 24, 24 });
     m_homeLoaderSelector->setAccessibleName(tr("Select an installed mod loader"));
     loaderField->addWidget(m_homeLoaderSelector);
     buildSelectors->addLayout(loaderField);
     buildSelectors->addStretch(1);
-    heroLayout->addLayout(buildSelectors, 2, 0, 1, 2);
+    heroLayout->addLayout(buildSelectors, 2, 0, 1, 1);
 
     m_homeProfileName = new QLabel(hero);
     m_homeProfileName->setObjectName(QStringLiteral("boostKicker"));
@@ -2119,28 +2120,23 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
     historyCopy->setSpacing(2);
     historyCopy->addWidget(m_homeProfileName);
     historyCopy->addWidget(m_homeProfileStatus);
-    auto* accountHistoryRow = new QHBoxLayout();
-    accountHistoryRow->setContentsMargins(0, 0, 0, 0);
-    accountHistoryRow->setSpacing(16);
-    accountHistoryRow->addLayout(historyCopy, 1);
-    heroLayout->addLayout(accountHistoryRow, 3, 0, 1, 2);
-
-    auto* heroActions = new QVBoxLayout();
-    heroActions->setSpacing(10);
+    auto* heroActions = new QHBoxLayout();
+    heroActions->setSpacing(12);
     m_homePlayButton = new QPushButton(tr("Play"), hero);
     m_homePlayButton->setObjectName(QStringLiteral("boostPlayButton"));
     m_homePlayButton->setIcon(launchButtonIcon());
     m_homePlayButton->setIconSize({ 22, 22 });
-    m_homePlayButton->setMinimumSize(200, 52);
+    m_homePlayButton->setMinimumSize(220, 58);
     m_homePlayButton->setAccessibleName(tr("Launch or stop the selected installation"));
     m_homeManageButton = new QPushButton(tr("Configure"), hero);
     m_homeManageButton->setObjectName(QStringLiteral("boostSecondaryButton"));
     m_homeManageButton->setIcon(QIcon(QStringLiteral(":/icons/breeze_dark/scalable/instance-settings.svg")));
-    m_homeManageButton->setMinimumSize(200, 34);
+    m_homeManageButton->setMinimumSize(132, 42);
     m_homeManageButton->setAccessibleName(tr("Configure the selected installation"));
+    heroActions->addLayout(historyCopy, 1);
     heroActions->addWidget(m_homePlayButton);
     heroActions->addWidget(m_homeManageButton);
-    heroLayout->addLayout(heroActions, 2, 2, 2, 1, Qt::AlignHCenter | Qt::AlignBottom);
+    heroLayout->addLayout(heroActions, 3, 0, 1, 1, Qt::AlignLeft | Qt::AlignVCenter);
 
     homeContentLayout->addWidget(hero, 1);
 
@@ -2715,7 +2711,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         m_homeAccountButton = new QPushButton(hero);
         m_homeAccountButton->setObjectName(QStringLiteral("boostAccountMenuButton"));
         m_homeAccountButton->setIconSize({ 24, 24 });
-        m_homeAccountButton->setMinimumSize(240, 44);
+        m_homeAccountButton->setMinimumSize(180, 42);
         m_homeAccountButton->setCursor(Qt::PointingHandCursor);
         m_homeAccountButton->setText(tr("Accounts"));
         m_homeAccountButton->setIcon(QIcon::fromTheme("accounts", QApplication::style()->standardIcon(QStyle::SP_DirHomeIcon)));
@@ -2729,7 +2725,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
             m_homeAccountButton->setEnabled(action->isEnabled());
         });
         m_homeAccountButton->setVisible(true);
-        accountHistoryRow->insertWidget(0, m_homeAccountButton);
+        greetingRow->addStretch(1);
+        greetingRow->addWidget(m_homeAccountButton);
 
         for (QAction* action : ui->mainToolBar->actions()) {
             if (action != ui->actionAccountsButton) {
