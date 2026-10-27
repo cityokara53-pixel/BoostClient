@@ -12,7 +12,7 @@ jobs:
     name: Windows app package
     runs-on: windows-2022
     permissions:
-      contents: read
+      contents: write
 
     env:
       BUILD_PLATFORM: Windows-MSVC
@@ -24,6 +24,11 @@ jobs:
         uses: actions/checkout@v7
         with:
           submodules: "true"
+
+      - name: Require a public repository for anonymous updates
+        if: ${{ github.event.repository.private }}
+        shell: pwsh
+        run: throw "BoostClient's updater needs public GitHub Releases; make this repository public before creating releases."
 
       - name: Set up build dependencies
         uses: ./.github/actions/setup-dependencies
@@ -53,7 +58,7 @@ jobs:
           BOOSTCLIENT_VERSION_PATCH: ${{ steps.version.outputs.patch }}
         run: |
           cmake --preset $env:CMAKE_PRESET `
-            "-DLauncher_UPDATER_GITHUB_REPO=https://github.com/cityokara53-pixel/OGClient-Releases" `
+            "-DLauncher_UPDATER_GITHUB_REPO=$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY" `
             "-DVCPKG_HOST_TRIPLET=$env:VCPKG_TRIPLET" `
             "-DVCPKG_TARGET_TRIPLET=$env:VCPKG_TRIPLET"
 
@@ -82,24 +87,12 @@ jobs:
           $hash = (Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
           "$hash  $(Split-Path $archive -Leaf)" | Set-Content "release\SHA256SUMS.txt" -Encoding ascii
 
-      - name: Require public release repository token
-        shell: pwsh
-        env:
-          RELEASES_TOKEN: ${{ secrets.RELEASES_TOKEN }}
-        run: |
-          if (-not $env:RELEASES_TOKEN) {
-            throw "Add the fine-grained RELEASES_TOKEN secret with Contents: Read and write access to OGClient-Releases."
-          }
-
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v3
         with:
-          repository: cityokara53-pixel/OGClient-Releases
-          token: ${{ secrets.RELEASES_TOKEN }}
           tag_name: ${{ github.ref_name }}
           name: OG Client ${{ github.ref_name }}
           generate_release_notes: true
-          fail_on_unmatched_files: true
           files: |
             release/BoostClient-Windows-MSVC-App-${{ steps.version.outputs.version }}.zip
             release/SHA256SUMS.txt
