@@ -6,6 +6,17 @@ an original BoostClient icon and a dark cyan-accented interface theme. It is an
 independent, modified project and is not affiliated with or endorsed by Prism
 Launcher.
 
+## OG Client copyright and source-use notice
+
+Original OG Client branding, artwork, and OG Client-specific contributions by
+yourdevilpro are Copyright (c) 2026 yourdevilpro. All rights reserved. Copying
+or redistributing those original materials is not permitted.
+
+This notice applies only to original OG Client materials. The upstream Prism
+Launcher code and other third-party components retain the licenses and notices
+that apply to them, including the GNU GPL and the terms in `LICENSE` and
+`COPYING.md`. This notice does not relicense those components.
+
 The upstream launcher architecture and capabilities are retained as the
 starting point, including separate instances, Minecraft version management,
 Java configuration, mod loaders, and modpack import. The Windows Release
